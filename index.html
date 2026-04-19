@@ -190,6 +190,131 @@ h1 {
   position: relative;
 }
 .stat:last-child { border-right: none; }
+.stat-clickable {
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.stat-clickable:hover {
+  background: rgba(184, 149, 74, 0.06);
+  transform: translateY(-1px);
+}
+.stat-clickable::after {
+  content: '⋯';
+  position: absolute;
+  top: 0.3rem;
+  right: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.4;
+  letter-spacing: 0.1em;
+}
+.stat-clickable:hover::after {
+  opacity: 1;
+  color: var(--gold);
+}
+
+/* === MODAL DÉTAIL LIEUX === */
+.lieux-detail-modal {
+  max-width: 540px;
+  width: 100%;
+}
+.lieux-detail-modal h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.8rem;
+  color: var(--bordeaux);
+  margin-bottom: 1.2rem;
+  line-height: 1.1;
+}
+.lieux-detail-modal h2 small {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-size: 0.6rem;
+  font-style: normal;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+.lieux-detail-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.lieu-block {
+  border-left: 3px solid var(--bordeaux);
+  padding: 0.8rem 1rem;
+  background: rgba(184, 149, 74, 0.04);
+}
+.lieu-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+.lieu-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-style: italic;
+}
+.lieu-totals {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.lieu-subs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.lieu-sub-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 110px;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 0.82rem;
+}
+.sub-name {
+  font-family: 'Fraunces', serif;
+  color: var(--ink);
+}
+.sub-unprecised .sub-name {
+  color: var(--muted);
+  font-style: italic;
+}
+.sub-bar-wrap {
+  background: rgba(0,0,0,0.06);
+  height: 10px;
+  overflow: hidden;
+  border-radius: 1px;
+}
+body.dark .sub-bar-wrap { background: rgba(255,255,255,0.08); }
+.sub-bar {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+.sub-vals {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-align: right;
+  letter-spacing: 0.03em;
+}
+.lieu-empty {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--muted);
+  padding: 0.3rem 0;
+}
+@media (max-width: 900px) {
+  .lieux-detail-modal h2 { font-size: 1.4rem; }
+  .lieu-sub-row { grid-template-columns: 85px 1fr 90px; gap: 0.4rem; font-size: 0.72rem; }
+  .sub-vals { font-size: 0.62rem; }
+  .lieu-name { font-size: 1.1rem; }
+  .lieu-totals { font-size: 0.65rem; }
+}
 
 .stat-value {
   font-family: 'Cormorant Garamond', serif;
@@ -750,6 +875,18 @@ select:hover, .btn:hover {
 .lieu-Missa { border-left: 2px solid var(--gold); }
 .lieu-Parents { border-left: 2px solid #4a6741; }
 
+/* Sous-emplacement : affiché en petit sous le lieu principal */
+.wine-sublieu {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-style: italic;
+  color: var(--muted);
+  margin-top: 0.15rem;
+  font-weight: 400;
+}
+
 .wine-apogee {
   font-size: 0.7rem;
   letter-spacing: 0.05em;
@@ -826,6 +963,118 @@ select:hover, .btn:hover {
   .empty-svg { width: 90px; }
   .empty-title { font-size: 1.5rem; }
   .empty-sub { font-size: 0.85rem; }
+}
+
+/* === SCAN CODE-BARRES === */
+.scan-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.btn-scan {
+  background: linear-gradient(135deg, var(--bordeaux), var(--bordeaux-deep));
+  color: var(--cream);
+  border: none;
+  padding: 0.9rem 1.2rem;
+  font-family: 'Fraunces', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(109, 40, 61, 0.2);
+}
+.btn-scan:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(109, 40, 61, 0.3);
+}
+.btn-scan:active {
+  transform: translateY(0);
+}
+.scan-status {
+  font-family: 'Fraunces', serif;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--muted);
+  padding: 0 0.3rem;
+  min-height: 1em;
+  transition: color 0.2s;
+}
+.scan-status.ok { color: #4a6741; font-style: normal; }
+.scan-status.warn { color: #a67a1f; }
+.scan-status.err { color: #a0483f; }
+
+/* Modal du scanner */
+.scan-overlay { }
+.scan-modal {
+  background: var(--paper);
+  padding: 2rem 1.5rem;
+  padding-top: calc(2rem + env(safe-area-inset-top));
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  max-width: 520px;
+  width: 100%;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid var(--gold);
+}
+.scan-modal h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.8rem;
+  color: var(--bordeaux);
+  margin-bottom: 0.8rem;
+  line-height: 1.1;
+}
+.scan-modal h2 small {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-size: 0.6rem;
+  font-style: normal;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+.scan-instruction {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+.scan-reader {
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  border: 2px dashed var(--gold);
+  min-height: 240px;
+  background: var(--cream);
+  position: relative;
+  overflow: hidden;
+}
+.scan-reader video { max-width: 100%; }
+.scan-result {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  font-family: 'Fraunces', serif;
+  font-size: 0.85rem;
+  min-height: 2em;
+  background: rgba(184,149,74,0.08);
+  border-left: 3px solid var(--gold);
+  display: none;
+}
+.scan-result.show { display: block; }
+.scan-result.success { background: rgba(74,103,65,0.1); border-left-color: #4a6741; color: #2d4a2d; }
+.scan-result.error { background: rgba(160,72,63,0.1); border-left-color: #a0483f; color: #8b3a32; }
+
+@media (max-width: 900px) {
+  .scan-modal { padding: 1.2rem 1rem; }
+  .scan-modal h2 { font-size: 1.4rem; }
+  .scan-reader { min-height: 200px; }
+  .btn-scan { padding: 0.85rem 1rem; font-size: 0.8rem; }
 }
 
 /* === MODAL === */
@@ -2248,6 +2497,8 @@ footer em {
   padding: 0.3rem 0.5rem;
 }
 </style>
+<!-- Scanner de codes-barres (EAN, UPC, QR...) : html5-qrcode -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -2272,9 +2523,14 @@ footer em {
   </select>
   <select id="filterLieu">
     <option value="">Lieu : tous</option>
-    <option value="Maison">Maison</option>
+    <option value="Maison">Maison (tous)</option>
+    <option value="Maison|Cave gauche">&nbsp;&nbsp;↳ Cave gauche</option>
+    <option value="Maison|Cave droite">&nbsp;&nbsp;↳ Cave droite</option>
     <option value="Missa">Missa</option>
-    <option value="Parents">Parents</option>
+    <option value="Parents">Parents (tous)</option>
+    <option value="Parents|Carton">&nbsp;&nbsp;↳ Carton</option>
+    <option value="Parents|Cave noire">&nbsp;&nbsp;↳ Cave noire</option>
+    <option value="Parents|Cave maison">&nbsp;&nbsp;↳ Cave maison</option>
   </select>
   <select id="filterFormat">
     <option value="">Format : tous</option>
@@ -2313,6 +2569,17 @@ footer em {
   <em>In vino veritas</em> — <span id="syncStatus" class="sync-status">Initialisation…</span>
   <button id="btnReconnect" class="btn-reconnect" title="Forcer la reconnexion">↻ Reconnecter</button>
 </footer>
+
+<!-- MODAL SCAN CODE-BARRES -->
+<div class="modal-overlay scan-overlay" id="scanModal">
+  <div class="scan-modal">
+    <button class="modal-close" id="scanClose">×</button>
+    <h2><small>Identification rapide</small>Scanner le code-barres</h2>
+    <div class="scan-instruction">Pointez la caméra sur le code-barres ou le code QR du vin.</div>
+    <div id="scanReader" class="scan-reader"></div>
+    <div class="scan-result" id="scanResult"></div>
+  </div>
+</div>
 
 <!-- iOS INSTALL BANNER -->
 <div class="install-banner" id="installBanner">
@@ -2388,6 +2655,13 @@ footer em {
   <div class="modal">
     <button class="modal-close" id="modalClose">×</button>
     <h2 id="modalTitle"><small>Fiche détaillée</small>Nouveau vin</h2>
+
+    <!-- Bouton de scan code-barres : raccourci de saisie -->
+    <div class="scan-wrap" id="scanWrap">
+      <button type="button" class="btn-scan" id="btnOpenScan">📷 Scanner le code-barres</button>
+      <div class="scan-status" id="scanStatus"></div>
+    </div>
+    <input type="hidden" id="f_barcode" value="">
 
     <div class="modal-section">
       <div class="form-row">
@@ -2467,6 +2741,14 @@ footer em {
           </select>
         </div>
       </div>
+      <div class="form-row" id="f_subLieu_row" style="display:none;">
+        <div class="form-field">
+          <label id="f_subLieu_label">Emplacement précis</label>
+          <select id="f_subLieu">
+            <option value="">— Non précisé —</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <div class="modal-section">
@@ -2529,6 +2811,7 @@ footer em {
       <div class="modal-actions">
         <button class="btn" id="btnDuplicate" title="Créer un autre millésime/format identique">⎘ Dupliquer</button>
         <button class="btn" id="btnShare" title="Partager cette fiche">↗ Partager</button>
+        <button class="btn" id="btnEnrich" title="Enrichir depuis Vivino">🌐 Enrichir</button>
         <button class="btn" id="btnDrink" title="Marquer une bouteille comme bue">🍷 Boire une</button>
         <button class="btn" id="btnCancel">Annuler</button>
         <button class="btn btn-primary" id="btnSave">Enregistrer</button>
@@ -3220,7 +3503,12 @@ function getFiltered() {
     }
 
     if (color && w.couleur !== color) return false;
-    if (lieu && w.lieu !== lieu) return false;
+    if (lieu) {
+      // Le filtre lieu peut être "Maison" (tout Maison) ou "Maison|Cave gauche" (sous-emplacement précis)
+      const [wantedLieu, wantedSub] = lieu.split('|');
+      if (w.lieu !== wantedLieu) return false;
+      if (wantedSub && w.subLieu !== wantedSub) return false;
+    }
     if (format && w.format !== format) return false;
     if (search) {
       const hay = [
@@ -3304,7 +3592,7 @@ function renderStats() {
         <span>Rouges</span><span class="lbl-sep">·</span><span>Blancs</span><span class="lbl-sep">·</span><span>Rosés</span>
       </div>
     </div>
-    <div class="stat">
+    <div class="stat stat-clickable" id="statLieuxTile" title="Voir le détail par sous-emplacement">
       <div class="stat-value stat-triple stat-lieux">
         <span class="lieu-maison" title="Maison">${fmtPrice(maison)}</span>
         <span class="lieu-sep">·</span>
@@ -3317,6 +3605,109 @@ function renderStats() {
       </div>
     </div>
   `;
+
+  // Brancher le clic sur la tuile lieux pour ouvrir le détail
+  const tile = document.getElementById('statLieuxTile');
+  if (tile) tile.addEventListener('click', openLieuxDetail);
+}
+
+// === DÉTAIL PAR SOUS-EMPLACEMENT ===
+// Ouvre une mini-modal qui montre la répartition par lieu + sous-emplacement
+function openLieuxDetail() {
+  const activeWines = wines.filter(w => !((w.stock || 0) === 0 && Array.isArray(w.history) && w.history.length > 0));
+
+  // Agrégation par lieu puis sous-emplacement
+  const data = {};
+  for (const lieu of Object.keys(SUB_LIEUX)) {
+    data[lieu] = {
+      total: { count: 0, value: 0 },
+      subs: {}
+    };
+    for (const sub of SUB_LIEUX[lieu]) {
+      data[lieu].subs[sub] = { count: 0, value: 0 };
+    }
+    // Bucket "sans sous-emplacement"
+    if (SUB_LIEUX[lieu].length > 0) {
+      data[lieu].subs['(non précisé)'] = { count: 0, value: 0 };
+    }
+  }
+
+  activeWines.forEach(w => {
+    const lieu = w.lieu || 'Maison';
+    if (!data[lieu]) return;
+    const stock = w.stock || 0;
+    const value = stock * (w.prix || 0);
+    data[lieu].total.count += stock;
+    data[lieu].total.value += value;
+    if (SUB_LIEUX[lieu].length > 0) {
+      const sub = (w.subLieu && SUB_LIEUX[lieu].includes(w.subLieu)) ? w.subLieu : '(non précisé)';
+      data[lieu].subs[sub].count += stock;
+      data[lieu].subs[sub].value += value;
+    }
+  });
+
+  // Construction du HTML
+  const lieuColors = { 'Maison': 'var(--bordeaux)', 'Missa': 'var(--gold)', 'Parents': '#4a6741' };
+  let html = `
+    <div class="modal-overlay open" id="lieuxDetailModal">
+      <div class="choice-modal lieux-detail-modal">
+        <button class="modal-close" data-action="close">×</button>
+        <h2><small>Répartition détaillée</small>Par lieu de stockage</h2>
+        <div class="lieux-detail-wrap">
+  `;
+
+  for (const lieu of ['Maison', 'Missa', 'Parents']) {
+    const d = data[lieu];
+    const color = lieuColors[lieu];
+    html += `
+      <div class="lieu-block" style="border-left-color:${color};">
+        <div class="lieu-block-header">
+          <span class="lieu-name" style="color:${color};">${lieu}</span>
+          <span class="lieu-totals">${d.total.count} bout. · ${fmtPrice(d.total.value)}</span>
+        </div>
+    `;
+    const subs = Object.entries(d.subs).filter(([_, v]) => v.count > 0);
+    if (subs.length > 0) {
+      html += '<div class="lieu-subs">';
+      for (const [subName, subData] of subs) {
+        const pct = d.total.count > 0 ? Math.round((subData.count / d.total.count) * 100) : 0;
+        const isUnprecised = subName === '(non précisé)';
+        html += `
+          <div class="lieu-sub-row ${isUnprecised ? 'sub-unprecised' : ''}">
+            <span class="sub-name">${subName}</span>
+            <div class="sub-bar-wrap">
+              <div class="sub-bar" style="width:${pct}%;background:${color};"></div>
+            </div>
+            <span class="sub-vals">${subData.count} · ${fmtPrice(subData.value)}</span>
+          </div>
+        `;
+      }
+      html += '</div>';
+    } else if (d.total.count === 0) {
+      html += '<div class="lieu-empty">Aucun vin à cet emplacement</div>';
+    }
+    html += '</div>';
+  }
+
+  html += `
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Insérer dans le body
+  const existing = document.getElementById('lieuxDetailModal');
+  if (existing) existing.remove();
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+  document.body.appendChild(wrap.firstElementChild);
+
+  const modal = document.getElementById('lieuxDetailModal');
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal || e.target.dataset.action === 'close') {
+      modal.remove();
+    }
+  });
 }
 
 function renderTabs() {
@@ -3612,7 +4003,7 @@ function renderBuRow(event) {
       <div class="wine-cuvee">${w.cuvee||'—'}</div>
       <div class="wine-year">${w.millesime||'—'}</div>
       <div class="bu-date">${dateLabel}</div>
-      <div class="wine-lieu lieu-${w.lieu||'Maison'}">${w.lieu||'Maison'}</div>
+      <div class="wine-lieu lieu-${w.lieu||'Maison'}">${w.lieu||'Maison'}${w.subLieu ? `<span class="wine-sublieu">${w.subLieu}</span>` : ''}</div>
       <div class="wine-price">${fmtPrice(w.prix)}</div>
     </div>
   `;
@@ -3946,7 +4337,7 @@ function renderCuveeRow(group) {
       <div class="wine-cuvee">${w.cuvee||'—'}</div>
       <div class="wine-year">${w.millesime||'—'}</div>
       ${stockBlock}
-      <div class="wine-lieu lieu-${w.lieu||'Maison'}">${w.lieu||'Maison'}</div>
+      <div class="wine-lieu lieu-${w.lieu||'Maison'}">${w.lieu||'Maison'}${w.subLieu ? `<span class="wine-sublieu">${w.subLieu}</span>` : ''}</div>
       <div class="wine-apogee ${apogee.class}">${apogee.text}</div>
       <div class="wine-price">
         ${fmtPrice(refPrice)}
@@ -4262,6 +4653,454 @@ function starsHtml(rating) {
   return html;
 }
 
+// === SCANNER CODE-BARRES (html5-qrcode) ===
+let scanner = null;
+
+async function openBarcodeScanner() {
+  const modal = document.getElementById('scanModal');
+  const resultEl = document.getElementById('scanResult');
+  resultEl.className = 'scan-result';
+  resultEl.textContent = '';
+  modal.classList.add('open');
+
+  // Attendre que la librairie soit chargée
+  if (typeof Html5Qrcode === 'undefined') {
+    resultEl.className = 'scan-result show error';
+    resultEl.textContent = 'Librairie de scan introuvable (pas de connexion ?).';
+    return;
+  }
+
+  try {
+    scanner = new Html5Qrcode('scanReader');
+    const config = {
+      fps: 10,
+      qrbox: { width: 280, height: 160 },
+      aspectRatio: 1.2,
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.QR_CODE,
+      ]
+    };
+    await scanner.start(
+      { facingMode: 'environment' },
+      config,
+      async (decodedText) => {
+        // Stop immédiat pour éviter les double-scans
+        try { await scanner.stop(); scanner.clear(); } catch(e) {}
+        scanner = null;
+        await handleBarcodeFound(decodedText);
+      },
+      () => { /* silencieux : scanning en cours */ }
+    );
+  } catch (e) {
+    console.error('Erreur démarrage scanner:', e);
+    resultEl.className = 'scan-result show error';
+    resultEl.textContent = 'Impossible d\'accéder à la caméra. Vérifie que tu as autorisé Safari à l\'utiliser pour ce site.';
+  }
+}
+
+async function closeBarcodeScanner() {
+  if (scanner) {
+    try { await scanner.stop(); scanner.clear(); } catch(e) {}
+    scanner = null;
+  }
+  document.getElementById('scanModal').classList.remove('open');
+}
+
+// Quand un code-barres est détecté : lookup en cascade
+async function handleBarcodeFound(code) {
+  const resultEl = document.getElementById('scanResult');
+  const statusEl = document.getElementById('scanStatus');
+  resultEl.className = 'scan-result show';
+  resultEl.innerHTML = `Code détecté : <strong>${code}</strong><br>Recherche en cours…`;
+
+  // Stocker le code-barres dans le champ caché pour réutilisation (phase B Vivino)
+  document.getElementById('f_barcode').value = code;
+
+  let found = null;
+  let source = '';
+
+  // Essai 1 : Open Food Facts (gratuit, illimité)
+  try {
+    const off = await lookupOpenFoodFacts(code);
+    if (off) { found = off; source = 'Open Food Facts'; }
+  } catch(e) { console.warn('OFF failed:', e); }
+
+  // Essai 2 : UPC Item DB (gratuit, 100 requêtes/jour)
+  if (!found) {
+    try {
+      const upc = await lookupUpcItemDb(code);
+      if (upc) { found = upc; source = 'UPC Item DB'; }
+    } catch(e) { console.warn('UPC failed:', e); }
+  }
+
+  if (found) {
+    resultEl.className = 'scan-result show success';
+    resultEl.innerHTML = `✓ Trouvé sur <strong>${source}</strong> : ${found.title || 'vin identifié'}<br>Pré-remplissage du formulaire…`;
+    applyScannedData(found);
+    statusEl.textContent = `✓ Pré-rempli depuis ${source} · code ${code}`;
+    statusEl.className = 'scan-status ok';
+    setTimeout(() => closeBarcodeScanner(), 1500);
+  } else {
+    resultEl.className = 'scan-result show error';
+    resultEl.innerHTML = `⚠ Code <strong>${code}</strong> non trouvé dans les bases publiques.<br>Le code est conservé : il pourra être utilisé par l'enrichissement Vivino plus tard. Tu peux saisir les infos manuellement.`;
+    statusEl.textContent = `⚠ Code ${code} non identifié (conservé pour enrichissement ultérieur)`;
+    statusEl.className = 'scan-status warn';
+    setTimeout(() => closeBarcodeScanner(), 3000);
+  }
+}
+
+// Lookup Open Food Facts (gratuit, format JSON public)
+async function lookupOpenFoodFacts(code) {
+  const url = `https://world.openfoodfacts.org/api/v2/product/${code}.json`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const data = await res.json();
+  if (data.status !== 1 || !data.product) return null;
+  const p = data.product;
+  return {
+    title: p.product_name || p.generic_name || '',
+    brand: p.brands || '',
+    categories: p.categories || '',
+    raw: p,
+  };
+}
+
+// Lookup UPC Item DB (gratuit 100/j)
+async function lookupUpcItemDb(code) {
+  const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const data = await res.json();
+  if (!data.items || data.items.length === 0) return null;
+  const item = data.items[0];
+  return {
+    title: item.title || '',
+    brand: item.brand || '',
+    categories: item.category || '',
+    raw: item,
+  };
+}
+
+// Applique les données trouvées au formulaire (sans écraser les saisies manuelles)
+function applyScannedData(data) {
+  const title = (data.title || '').trim();
+  const brand = (data.brand || '').trim();
+
+  // Tenter d'extraire un millésime (année entre 1950 et l'année courante) du titre
+  const yearMatch = title.match(/\b(19[5-9]\d|20[0-3]\d)\b/);
+  if (yearMatch && !document.getElementById('f_millesime').value) {
+    document.getElementById('f_millesime').value = yearMatch[1];
+  }
+
+  // Détecter la couleur via mots-clés
+  const lc = (title + ' ' + brand).toLowerCase();
+  if (/\bros[ée]\b/.test(lc)) document.getElementById('f_couleur').value = 'Rosé';
+  else if (/\bblanc\b|white\b/.test(lc)) document.getElementById('f_couleur').value = 'Blanc';
+  else if (/\brouge\b|red\b/.test(lc)) document.getElementById('f_couleur').value = 'Rouge';
+
+  // Remplir le domaine si vide (priorité au brand)
+  const domaineInput = document.getElementById('f_domaine');
+  const domaineSelect = document.getElementById('f_domaine_select');
+  if (!domaineInput.value && brand) {
+    // Vérifier si le domaine existe déjà
+    const options = [...domaineSelect.options].map(o => o.value);
+    const match = options.find(o => o !== '__other__' && o.toLowerCase() === brand.toLowerCase());
+    if (match) {
+      domaineSelect.value = match;
+      domaineInput.value = match;
+      domaineInput.classList.remove('show');
+    } else {
+      domaineSelect.value = '__other__';
+      domaineInput.value = brand;
+      domaineInput.classList.add('show');
+    }
+  }
+
+  // Titre brut : si le domaine n'a pas été rempli, essayer avec le titre
+  if (!domaineInput.value && title) {
+    // Nettoyer le titre : enlever l'année et les volumes "75cl"
+    let cleaned = title.replace(/\b(19[5-9]\d|20[0-3]\d)\b/g, '').replace(/\d+\s*(cl|ml|l)\b/gi, '').trim();
+    // Capitaliser les préfixes classiques
+    cleaned = cleaned.replace(/^(domaine|château|chateau|clos|maison|mas|cave|cellier|vignoble)/i,
+                             m => m.charAt(0).toUpperCase() + m.slice(1).toLowerCase());
+    if (cleaned) {
+      domaineSelect.value = '__other__';
+      domaineInput.value = cleaned;
+      domaineInput.classList.add('show');
+    }
+  }
+
+  // Afficher dans les notes un indice (reste éditable)
+  // Optionnel : désactivé pour ne pas polluer les notes.
+  // const notesEl = document.getElementById('f_notes');
+  // if (!notesEl.value) notesEl.value = `[Identifié via scan] ${title}`;
+}
+
+// Listeners
+document.getElementById('btnOpenScan').addEventListener('click', openBarcodeScanner);
+document.getElementById('scanClose').addEventListener('click', closeBarcodeScanner);
+document.getElementById('scanModal').addEventListener('click', (e) => {
+  if (e.target.id === 'scanModal') closeBarcodeScanner();
+});
+
+// === ENRICHISSEMENT VIVINO (Phase B) ===
+// URL du worker Cloudflare qui fait office de proxy
+const VIVINO_WORKER = 'https://cave-tom-vivino.tom-varin35.workers.dev';
+
+async function enrichFromVivino() {
+  if (!editingId) return;
+  const w = wines.find(x => x.id === editingId);
+  if (!w) return;
+
+  const btn = document.getElementById('btnEnrich');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '🌐 Recherche…';
+
+  try {
+    // Construire une requête de recherche intelligente
+    let queryParts = [w.domaine, w.cuvee, w.millesime].filter(Boolean);
+    let query = queryParts.join(' ').trim();
+    if (!query) {
+      query = [w.appellation, w.millesime].filter(Boolean).join(' ').trim();
+    }
+    if (!query) {
+      alert('Pas assez d\'infos pour rechercher (renseigne au moins le domaine ou l\'appellation).');
+      btn.disabled = false;
+      btn.textContent = originalText;
+      return;
+    }
+
+    // 1. Essai par code-barres si disponible
+    let searchResults = [];
+    const barcode = w.barcode || document.getElementById('f_barcode').value;
+    if (barcode) {
+      try {
+        const res = await fetch(`${VIVINO_WORKER}/barcode?code=${encodeURIComponent(barcode)}`);
+        if (res.ok) {
+          const data = await res.json();
+          searchResults = data.results || [];
+        }
+      } catch(e) { console.warn('Vivino barcode lookup failed:', e); }
+    }
+
+    // 2. Fallback : recherche textuelle
+    if (searchResults.length === 0) {
+      btn.textContent = '🌐 Recherche par nom…';
+      const res = await fetch(`${VIVINO_WORKER}/search?q=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error('Recherche Vivino échouée');
+      const data = await res.json();
+      searchResults = data.results || [];
+    }
+
+    if (searchResults.length === 0) {
+      alert(`Aucun résultat sur Vivino pour "${query}".\n\nTu peux essayer de modifier le nom du domaine ou la cuvée et réessayer.`);
+      btn.disabled = false;
+      btn.textContent = originalText;
+      return;
+    }
+
+    // 3. Si plusieurs résultats, proposer un choix
+    let chosen;
+    if (searchResults.length === 1) {
+      chosen = searchResults[0];
+    } else {
+      chosen = await pickVivinoResult(searchResults, query);
+      if (!chosen) {
+        btn.disabled = false;
+        btn.textContent = originalText;
+        return;
+      }
+    }
+
+    // 4. Récupérer les détails du vin choisi
+    btn.textContent = '🌐 Extraction…';
+    const detailRes = await fetch(`${VIVINO_WORKER}/wine?url=${encodeURIComponent(chosen.url)}`);
+    if (!detailRes.ok) throw new Error('Extraction Vivino échouée');
+    const details = await detailRes.json();
+
+    // 5. Appliquer les données (sans écraser les saisies manuelles)
+    applyVivinoData(details);
+
+    btn.textContent = '✓ Enrichi';
+    btn.style.background = 'rgba(74, 103, 65, 0.2)';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = originalText;
+      btn.style.background = '';
+    }, 2000);
+
+  } catch (e) {
+    console.error('Erreur enrichissement Vivino:', e);
+    alert('Enrichissement impossible : ' + e.message + '\n\nVérifie ta connexion internet et réessaie.');
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+// Propose un choix entre plusieurs résultats
+function pickVivinoResult(results, query) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay open';
+    overlay.style.zIndex = 2000;
+    overlay.innerHTML = `
+      <div class="choice-modal" style="max-width: 500px;">
+        <button class="modal-close" data-action="cancel">×</button>
+        <h2><small>Plusieurs résultats Vivino</small>Lequel correspond ?</h2>
+        <p style="font-size:0.85rem;color:var(--ink-soft);margin-bottom:1rem;">Recherche : <em>${query}</em></p>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          ${results.slice(0, 5).map((r, i) => `
+            <button class="btn" data-index="${i}" style="text-align:left;padding:0.8rem;font-family:'Fraunces',serif;font-size:0.85rem;">
+              ${r.title || r.url.split('/').pop() || 'Vin sans titre'}
+              <div style="font-size:0.7rem;color:var(--muted);margin-top:0.2rem;font-family:'JetBrains Mono',monospace;">${r.url.replace('https://www.vivino.com','')}</div>
+            </button>
+          `).join('')}
+        </div>
+        <div style="margin-top:1rem;text-align:right;">
+          <button class="btn" data-action="cancel">Annuler</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay || e.target.dataset.action === 'cancel') {
+        overlay.remove();
+        resolve(null);
+        return;
+      }
+      const btn = e.target.closest('[data-index]');
+      if (btn) {
+        const idx = parseInt(btn.dataset.index);
+        overlay.remove();
+        resolve(results[idx]);
+      }
+    });
+  });
+}
+
+// Applique les données Vivino au formulaire (préserve les saisies manuelles)
+function applyVivinoData(d) {
+  const updates = [];
+
+  // Note (rating) : Vivino note sur 5 aussi mais avec décimales → on arrondit
+  if (d.rating && !currentRating) {
+    const r = Math.round(d.rating);
+    setRatingStars(Math.min(5, Math.max(0, r)));
+    updates.push(`Note : ${r}/5 (Vivino ${d.rating.toFixed(1)})`);
+  }
+
+  // Cépages : écrase si on a le droit (système lastAutoCepage)
+  if (d.grapes) {
+    const cepageInput = document.getElementById('f_cepage');
+    const current = cepageInput.value.trim();
+    if (!current || current === lastAutoCepage) {
+      cepageInput.value = d.grapes;
+      lastAutoCepage = d.grapes;
+      cepageInput.style.background = 'rgba(184, 149, 74, 0.15)';
+      setTimeout(() => { cepageInput.style.background = ''; }, 1500);
+      updates.push(`Cépages : ${d.grapes}`);
+    }
+  }
+
+  // Apogée explicite de Vivino (rare mais précieux)
+  if (d.apogeeStart) {
+    const input = document.getElementById('f_apogeeStart');
+    if (!input.value) {
+      input.value = d.apogeeStart;
+      updates.push(`Apogée début : ${d.apogeeStart}`);
+    }
+  }
+  if (d.apogeeEnd) {
+    const input = document.getElementById('f_apogeeEnd');
+    if (!input.value) {
+      input.value = d.apogeeEnd;
+      updates.push(`Apogée fin : ${d.apogeeEnd}`);
+    }
+  }
+
+  // Informations ajoutées dans les notes (prix Vivino, rating count, lien source)
+  const notesEl = document.getElementById('f_notes');
+  const extras = [];
+  if (d.rating) extras.push(`Note Vivino : ${d.rating.toFixed(1)}/5${d.ratingCount ? ` (${d.ratingCount} avis)` : ''}`);
+  if (d.price) extras.push(`Prix marché Vivino : ${d.price} ${d.currency || 'EUR'}`);
+  if (d.sourceUrl) extras.push(`Source : ${d.sourceUrl}`);
+  if (extras.length > 0) {
+    const block = '— Vivino —\n' + extras.join('\n');
+    const currentNotes = notesEl.value;
+    // Si le bloc Vivino existe déjà, on le remplace ; sinon on l'ajoute
+    if (/— Vivino —[\s\S]*?(?=\n\n|$)/.test(currentNotes)) {
+      notesEl.value = currentNotes.replace(/— Vivino —[\s\S]*?(?=\n\n|$)/, block);
+    } else {
+      notesEl.value = currentNotes ? currentNotes + '\n\n' + block : block;
+    }
+    updates.push('Notes Vivino ajoutées');
+  }
+
+  // Pays si manquant
+  if (d.country) {
+    const paysInput = document.getElementById('f_pays');
+    if (!paysInput.value || paysInput.value === 'Autre') {
+      // mapping anglais → français
+      const countryMap = { 'France': 'France', 'Italy': 'Italie', 'Spain': 'Espagne', 'Portugal': 'Portugal', 'Germany': 'Allemagne', 'United States': 'USA', 'USA': 'USA', 'Australia': 'Australie', 'South Africa': 'Afrique du Sud', 'Switzerland': 'Suisse' };
+      const mapped = countryMap[d.country] || d.country;
+      paysInput.value = mapped;
+      updates.push(`Pays : ${mapped}`);
+    }
+  }
+
+  console.log('Enrichissement Vivino appliqué :', updates);
+}
+
+// Listener du bouton
+document.getElementById('btnEnrich').addEventListener('click', enrichFromVivino);
+
+// === SOUS-EMPLACEMENTS ===
+// Chaque lieu peut avoir plusieurs sous-emplacements définis ici
+const SUB_LIEUX = {
+  'Maison': ['Cave gauche', 'Cave droite'],
+  'Missa': [],
+  'Parents': ['Carton', 'Cave noire', 'Cave maison'],
+};
+
+// Met à jour le select sous-emplacement selon le lieu choisi
+function updateSubLieuOptions(preserveValue) {
+  const lieu = document.getElementById('f_lieu').value;
+  const row = document.getElementById('f_subLieu_row');
+  const select = document.getElementById('f_subLieu');
+  const subs = SUB_LIEUX[lieu] || [];
+
+  if (subs.length === 0) {
+    // Pas de sous-emplacement pour ce lieu : on cache et on vide
+    row.style.display = 'none';
+    select.value = '';
+    return;
+  }
+
+  // Repeupler le select
+  select.innerHTML = '<option value="">— Non précisé —</option>' +
+    subs.map(s => `<option value="${s}">${s}</option>`).join('');
+
+  // Restaurer la valeur précédente si elle est valide pour ce lieu
+  if (preserveValue && subs.includes(preserveValue)) {
+    select.value = preserveValue;
+  } else {
+    select.value = '';
+  }
+
+  row.style.display = 'grid';
+}
+
+// Écoute les changements de lieu
+document.getElementById('f_lieu').addEventListener('change', () => {
+  updateSubLieuOptions('');
+});
+
 function openModal(id) {
   editingId = id;
   photoData = null;
@@ -4292,12 +5131,18 @@ function openModal(id) {
   document.getElementById('f_stock').value = w?.stock ?? 1;
   document.getElementById('f_prix').value = w?.prix || '';
   document.getElementById('f_lieu').value = w?.lieu || 'Maison';
+  updateSubLieuOptions(w?.subLieu || '');
   document.getElementById('f_notes').value = w?.notes || '';
   document.getElementById('f_cepage').value = w?.cepage || '';
   lastAutoCepage = ''; // un cépage existant est considéré comme saisie manuelle
   document.getElementById('f_accords').value = w?.accords || '';
   document.getElementById('f_apogeeStart').value = w?.apogeeStart || '';
   document.getElementById('f_apogeeEnd').value = w?.apogeeEnd || '';
+  document.getElementById('f_barcode').value = w?.barcode || '';
+  // Reset statut scan à chaque ouverture
+  const scanStatus = document.getElementById('scanStatus');
+  scanStatus.textContent = w?.barcode ? `📷 Code-barres : ${w.barcode}` : '';
+  scanStatus.className = 'scan-status';
   setRatingStars(w?.rating || 0);
   document.getElementById('ocrStatus').className = 'ocr-status';
 
@@ -4312,6 +5157,7 @@ function openModal(id) {
   document.getElementById('btnDelete').style.display = id ? 'inline-block' : 'none';
   document.getElementById('btnDuplicate').style.display = id ? 'inline-block' : 'none';
   document.getElementById('btnShare').style.display = id ? 'inline-block' : 'none';
+  document.getElementById('btnEnrich').style.display = id ? 'inline-block' : 'none';
   document.getElementById('btnDrink').style.display = id && (w?.stock||0) > 0 ? 'inline-block' : 'none';
 
   updateApogeeInfo();
@@ -4593,12 +5439,14 @@ document.getElementById('btnSave').addEventListener('click', async () => {
     stock: parseInt(document.getElementById('f_stock').value) || 0,
     prix: parseFloat(document.getElementById('f_prix').value) || 0,
     lieu: document.getElementById('f_lieu').value,
+    subLieu: document.getElementById('f_subLieu').value || null,
     notes: document.getElementById('f_notes').value.trim(),
     cepage: document.getElementById('f_cepage').value.trim(),
     accords: document.getElementById('f_accords').value.trim(),
     rating: currentRating || 0,
     apogeeStart: parseInt(document.getElementById('f_apogeeStart').value) || null,
     apogeeEnd: parseInt(document.getElementById('f_apogeeEnd').value) || null,
+    barcode: document.getElementById('f_barcode').value.trim() || null,
     photo: photoData,
   };
 
