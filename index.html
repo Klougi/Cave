@@ -499,6 +499,47 @@ select:hover, .btn:hover {
   background: var(--cream);
 }
 
+/* Barre secondaire : régions du pays sélectionné */
+.tabs-secondary {
+  background: rgba(184, 149, 74, 0.05);
+  border-bottom: 1px solid var(--border);
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+body.dark .tabs-secondary {
+  background: rgba(245, 236, 216, 0.04);
+}
+.tab-sub {
+  padding: 0.7rem 1.1rem !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.15em !important;
+  color: var(--ink-soft);
+}
+.tab-sub.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+.tab-sub:hover { color: var(--gold); }
+
+/* Les onglets pays dans la 1ère barre */
+.tab-country {
+  position: relative;
+}
+.tab-country.active::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: var(--gold);
+}
+
+@media (max-width: 900px) {
+  .tabs-secondary { padding-left: 0.8rem; padding-right: 0.8rem; }
+  .tab-sub { padding: 0.6rem 0.7rem !important; font-size: 0.62rem !important; }
+}
+
 .tab {
   font-family: 'Fraunces', serif;
   font-size: 0.78rem;
@@ -755,6 +796,18 @@ select:hover, .btn:hover {
   object-fit: cover;
   image-rendering: -webkit-optimize-contrast;
   image-rendering: auto;
+}
+/* Vignette d'une bouteille isolée (PNG transparent) : fond crème + contain pour voir la bouteille entière */
+.wine-thumb img.thumb-isolated,
+.wine-card-thumb img.thumb-isolated {
+  object-fit: contain;
+  background:
+    linear-gradient(180deg, rgba(245, 233, 214, 0.8), rgba(237, 227, 204, 0.6));
+  padding: 2px;
+}
+body.dark .wine-thumb img.thumb-isolated,
+body.dark .wine-card-thumb img.thumb-isolated {
+  background: linear-gradient(180deg, rgba(31, 25, 20, 0.6), rgba(42, 34, 25, 0.4));
 }
 .wine-thumb-empty {
   font-family: 'Cormorant Garamond', serif;
@@ -1248,6 +1301,66 @@ select:hover, .btn:hover {
   text-align: center;
 }
 .file-label:hover { border-color: var(--bordeaux); color: var(--bordeaux); }
+
+/* Toggle isolation bouteille */
+.isolate-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+  padding: 0.5rem 0.3rem;
+  font-family: 'Fraunces', serif;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+}
+.isolate-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--bordeaux);
+  cursor: pointer;
+  margin: 0;
+}
+.isolate-toggle:hover { color: var(--bordeaux); }
+.isolate-status {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.75rem;
+  color: var(--muted);
+  min-height: 1.2em;
+  padding: 0.3rem 0.3rem 0;
+  transition: color 0.2s;
+}
+.isolate-status.processing { color: var(--gold); }
+.isolate-status.success { color: #4a6741; }
+.isolate-status.err { color: #a0483f; }
+
+/* Photo-preview adaptée pour bouteilles isolées : fond transparent en damier léger */
+.photo-preview.transparent-bg {
+  background-image:
+    linear-gradient(45deg, rgba(0,0,0,0.04) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.04) 75%),
+    linear-gradient(45deg, rgba(0,0,0,0.04) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.04) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+  background-color: var(--paper);
+}
+
+/* Spinner pendant le traitement */
+.isolate-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(184,149,74,0.3);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 0.4rem;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
 .modal-footer {
   margin-top: 2rem;
@@ -2295,10 +2408,10 @@ body.dark {
   --paper: #14100d;
   --cream: #1f1914;
   --cream-warm: #2a2219;
-  /* Bordeaux plus vif et lumineux pour les titres */
-  --bordeaux: #c77a92;
-  --bordeaux-deep: #a85e76;
-  --bordeaux-light: #e89eb0;
+  /* Bordeaux : devient crème clair pour les titres et textes (meilleure lisibilité) */
+  --bordeaux: #f5ecd8;
+  --bordeaux-deep: #d8cdb3;
+  --bordeaux-light: #ffffff;
   /* Or plus doux mais bien contrasté */
   --gold: #e8c27a;
   --gold-light: #f5dca3;
@@ -2321,6 +2434,70 @@ body.dark .wine-card-thumb img {
   filter: brightness(0.9) contrast(1.05);
 }
 body.dark .photo-preview img { filter: brightness(0.95); }
+
+/* Le bouton primaire "+ Ajouter un vin" : fond crème, texte noir anthracite pour contraste fort */
+body.dark .btn-primary {
+  background: #f5ecd8;
+  color: #14100d;
+  border-color: #f5ecd8;
+}
+body.dark .btn-primary:hover {
+  background: #ffffff;
+  color: #14100d;
+  border-color: #ffffff;
+}
+
+/* Boutons secondaires au fond bordeaux (comme le scanner) : restent colorés mais avec du contraste */
+body.dark .btn-scan {
+  background: linear-gradient(135deg, #a85e76, #823f54);
+  color: #f5ecd8;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+/* Les titres de régions, domaines, sections (actuellement bordeaux-rose) en crème */
+body.dark .region-header,
+body.dark .empty-title,
+body.dark .lieu-name,
+body.dark .scan-modal h2,
+body.dark .stats-modal h2,
+body.dark .modal h2,
+body.dark .domaine-detail-header h2 {
+  color: #f5ecd8 !important;
+}
+
+/* Exception: sous-titres en or pour garder la hiérarchie visuelle */
+body.dark .modal h2 small,
+body.dark .scan-modal h2 small,
+body.dark .stats-modal h2 small,
+body.dark .lieux-detail-modal h2 small {
+  color: #e8c27a !important;
+}
+
+/* Onglet actif : avant rose, maintenant crème */
+body.dark .tab.active {
+  color: #f5ecd8;
+  border-bottom-color: #e8c27a;
+}
+body.dark .tab:hover { color: #f5dca3; }
+
+/* Chiffre bouteille dans les chips Maison (stat-lieux) */
+body.dark .stat-lieux .lieu-maison { color: #f5ecd8; }
+
+/* Bandeau d'alerte apogée : couleur douce, pas agressif */
+body.dark .apogee-alerts {
+  background: linear-gradient(90deg, rgba(245,236,216,0.1), rgba(245,236,216,0.03));
+  border-bottom-color: rgba(245,236,216,0.25);
+  color: #f5ecd8;
+}
+body.dark .apogee-alerts strong { color: #f5ecd8; }
+
+/* Bordure or pour les éléments accentués (préserve l'identité visuelle) */
+body.dark .region-header {
+  border-bottom-color: #e8c27a;
+}
+body.dark .domaine-detail-header {
+  border-bottom-color: #e8c27a;
+}
 
 /* Ajustements spécifiques pour la lisibilité en dark */
 body.dark .fmt-chip.fmt-bout { color: #e89eb0; }  /* plus clair que bordeaux */
@@ -2795,6 +2972,11 @@ footer em {
           <input type="file" id="f_photo" accept="image/*" capture="environment">
           <button type="button" class="file-label" id="photoRemove">Retirer</button>
         </div>
+        <label class="isolate-toggle">
+          <input type="checkbox" id="f_isolate" checked>
+          <span>✂️ Isoler automatiquement la bouteille (fond transparent)</span>
+        </label>
+        <div class="isolate-status" id="isolateStatus"></div>
       </div>
     </div>
 
@@ -3499,7 +3681,16 @@ function getFiltered() {
     } else {
       // Tous les autres onglets : exclure les vins bus
       if (isBu) return false;
-      if (currentTab !== 'all' && w.region !== currentTab) return false;
+      if (currentTab === 'all') {
+        // rien à filtrer
+      } else if (currentTab.startsWith('country:')) {
+        // Onglet pays : filtrer par pays
+        const country = currentTab.slice('country:'.length);
+        if ((w.pays || 'Autre') !== country) return false;
+      } else {
+        // Onglet région précise
+        if (w.region !== currentTab) return false;
+      }
     }
 
     if (color && w.couleur !== color) return false;
@@ -3710,34 +3901,113 @@ function openLieuxDetail() {
   });
 }
 
+// Etat de navigation des onglets : 'all' | 'bu' | 'country:France' | 'region:Bourgogne'
+// currentTab stocke soit 'all', 'bu', 'country:XX' ou directement 'région' (legacy pour compat)
+// currentCountryTab : pays actuellement déplié (pour afficher ses régions en 2e barre)
+let currentCountryTab = null;
+
 function renderTabs() {
-  const counts = { all: 0, bu: 0 };
+  // Comptage par pays, par région, et détection des vins bus
+  const byCountry = {};      // { 'France': { total, regions: { 'Bourgogne': n, ... } } }
+  let buCount = 0;
+  let allCount = 0;
   wines.forEach(w => {
     const isBu = (w.stock || 0) === 0 && Array.isArray(w.history) && w.history.length > 0;
     if (isBu) {
-      counts.bu += w.history.length; // nombre de bouteilles bues
-    } else {
-      counts.all += 1;
-      counts[w.region] = (counts[w.region] || 0) + 1;
+      buCount += w.history.length;
+      return;
     }
+    allCount += 1;
+    const country = w.pays || 'Autre';
+    const region = w.region || 'Autre';
+    if (!byCountry[country]) byCountry[country] = { total: 0, regions: {} };
+    byCountry[country].total += 1;
+    byCountry[country].regions[region] = (byCountry[country].regions[region] || 0) + 1;
   });
-  const regions = Object.keys(counts).filter(r => r !== 'all' && r !== 'bu').sort((a,b)=>counts[b]-counts[a]);
 
-  const tabs = [
-    `<div class="tab ${currentTab==='all'?'active':''}" data-tab="all">Tous <span class="tab-count">${counts.all}</span></div>`,
-    ...regions.map(r =>
-      `<div class="tab ${currentTab===r?'active':''}" data-tab="${r}">${r} <span class="tab-count">${counts[r]}</span></div>`
-    ),
-  ];
-  // Onglet "Bu" toujours en dernier, mais seulement si au moins une bouteille bue
-  if (counts.bu > 0) {
-    tabs.push(`<div class="tab tab-bu ${currentTab==='bu'?'active':''}" data-tab="bu">🍷 Bu <span class="tab-count">${counts.bu}</span></div>`);
+  // Tri des pays par nombre de vins décroissant
+  const countries = Object.keys(byCountry).sort((a,b) => byCountry[b].total - byCountry[a].total);
+
+  // Déterminer quel pays est actif (soit l'onglet pays lui-même, soit une région de ce pays)
+  let activeCountry = null;
+  if (currentCountryTab) {
+    activeCountry = currentCountryTab;
+  } else if (currentTab && currentTab !== 'all' && currentTab !== 'bu') {
+    // Si on est sur un onglet région, retrouver le pays
+    for (const c of countries) {
+      if (byCountry[c].regions[currentTab]) {
+        activeCountry = c;
+        break;
+      }
+    }
   }
 
-  document.getElementById('tabs').innerHTML = tabs.join('');
+  // === Première barre : pays ===
+  const primaryTabs = [
+    `<div class="tab ${currentTab==='all'?'active':''}" data-tab="all">Tous <span class="tab-count">${allCount}</span></div>`,
+    ...countries.map(c => {
+      const isActive = activeCountry === c;
+      return `<div class="tab tab-country ${isActive?'active':''}" data-country="${c}">${flagOf(c)} ${c} <span class="tab-count">${byCountry[c].total}</span></div>`;
+    }),
+  ];
+  if (buCount > 0) {
+    primaryTabs.push(`<div class="tab tab-bu ${currentTab==='bu'?'active':''}" data-tab="bu">🍷 Bu <span class="tab-count">${buCount}</span></div>`);
+  }
+
+  // === Deuxième barre : régions du pays actif ===
+  let secondaryHtml = '';
+  if (activeCountry && byCountry[activeCountry]) {
+    const regions = Object.entries(byCountry[activeCountry].regions)
+      .sort((a,b) => b[1] - a[1]);
+    const regionsTabs = [
+      `<div class="tab tab-sub ${currentTab === 'country:'+activeCountry ? 'active' : ''}" data-country-all="${activeCountry}">Toutes régions <span class="tab-count">${byCountry[activeCountry].total}</span></div>`,
+      ...regions.map(([r, count]) =>
+        `<div class="tab tab-sub ${currentTab===r?'active':''}" data-tab="${r}">${r} <span class="tab-count">${count}</span></div>`
+      ),
+    ];
+    secondaryHtml = `<div class="tabs tabs-secondary">${regionsTabs.join('')}</div>`;
+  }
+
+  document.getElementById('tabs').innerHTML = primaryTabs.join('') + (secondaryHtml ? '</div>' + secondaryHtml.replace('</div>','') + '<div>' : '');
+  // La ligne ci-dessus fait un hack : on insère la 2e barre après la 1ère barre dans le parent.
+  // On va en fait mieux structurer :
+
+  document.getElementById('tabs').innerHTML = primaryTabs.join('');
+  // Ajouter/supprimer la barre secondaire après le conteneur #tabs
+  const oldSec = document.getElementById('tabs-secondary');
+  if (oldSec) oldSec.remove();
+  if (secondaryHtml) {
+    const secEl = document.createElement('div');
+    secEl.id = 'tabs-secondary';
+    secEl.className = 'tabs tabs-secondary';
+    // Extraire le contenu interne de secondaryHtml pour le mettre directement
+    secEl.innerHTML = secondaryHtml.replace(/^<div class="tabs tabs-secondary">/, '').replace(/<\/div>$/, '');
+    document.getElementById('tabs').after(secEl);
+  }
+
+  // Listeners pour les onglets
   document.querySelectorAll('.tab').forEach(t => {
     t.addEventListener('click', () => {
-      currentTab = t.dataset.tab;
+      if (t.dataset.country) {
+        // Clic sur un pays : déplier ses régions
+        if (currentCountryTab === t.dataset.country) {
+          // Second clic : retour à "Tous" et replier
+          currentCountryTab = null;
+          currentTab = 'all';
+        } else {
+          currentCountryTab = t.dataset.country;
+          // On affiche tous les vins de ce pays par défaut
+          currentTab = 'country:' + t.dataset.country;
+        }
+      } else if (t.dataset.countryAll) {
+        // Clic sur "Toutes régions" dans la barre secondaire
+        currentTab = 'country:' + t.dataset.countryAll;
+      } else if (t.dataset.tab) {
+        currentTab = t.dataset.tab;
+        if (currentTab === 'all' || currentTab === 'bu') {
+          currentCountryTab = null;
+        }
+      }
       currentDomaine = null;
       renderTabs();
       renderList();
@@ -3849,8 +4119,8 @@ function renderList() {
     } else {
       html = renderDomainesGrid(filtered);
     }
-  } else if (currentTab === 'all' && sort === 'region') {
-    // Vue principale : régions en sections, puis domaines en sous-sections
+  } else if ((currentTab === 'all' || currentTab.startsWith('country:')) && sort === 'region') {
+    // Vue "Tous" ou "pays" : régions en sections, puis domaines en sous-sections
     const byRegion = {};
     filtered.forEach(w => {
       if (!byRegion[w.region]) byRegion[w.region] = [];
@@ -3863,12 +4133,12 @@ function renderList() {
       html += `<div class="region-header"><span>${region}</span><span class="count">${groupedByCuvee.length} cuvées · ${fmtPrice(totalRegion)}</span></div>`;
       html += renderGroupedByDomaine(groupedByCuvee);
     }
-  } else if (currentTab !== 'all') {
+  } else if (currentTab !== 'all' && !currentTab.startsWith('country:')) {
     // Onglet d'une région spécifique : regroupement par domaine
     const groupedByCuvee = groupByCuvee(filtered);
     html = renderGroupedByDomaine(groupedByCuvee);
   } else {
-    // Vue "Tous" avec un autre tri (par millésime, prix, etc.) : on ne regroupe pas, liste à plat
+    // Vue "Tous" ou "pays" avec un autre tri : liste à plat
     const grouped = groupByCuvee(filtered);
     html = grouped.map(renderCuveeRow).join('');
   }
@@ -3984,7 +4254,7 @@ function renderBuList(filtered) {
 function renderBuRow(event) {
   const w = event.wine;
   const thumbHtml = w.photo
-    ? `<img src="${w.photo}" alt="">`
+    ? `<img src="${w.photo}" alt="" class="${w.photo.startsWith('data:image/png') ? 'thumb-isolated' : ''}">`
     : `<div class="wine-thumb-empty">sans<br>photo</div>`;
   const dateLabel = formatBuDate(event.date);
   const note = event.note
@@ -4207,7 +4477,7 @@ function renderCuveeCard(group) {
   const w = group.display;
   const apogee = computeApogee(w);
   const thumbHtml = w.photo
-    ? `<img src="${w.photo}" alt="">`
+    ? `<img src="${w.photo}" alt="" class="${w.photo.startsWith('data:image/png') ? 'thumb-isolated' : ''}">`
     : `<div class="wine-card-thumb-empty">sans photo</div>`;
 
   // Stock total affiché simplement
@@ -4299,7 +4569,7 @@ function renderCuveeRow(group) {
   const w = group.display;
   const apogee = computeApogee(w);
   const thumbHtml = w.photo
-    ? `<img src="${w.photo}" alt="">`
+    ? `<img src="${w.photo}" alt="" class="${w.photo.startsWith('data:image/png') ? 'thumb-isolated' : ''}">`
     : `<div class="wine-thumb-empty">sans<br>photo</div>`;
 
   // Prix de référence : premier format existant, en priorité Bouteille
@@ -5148,11 +5418,18 @@ function openModal(id) {
 
   const photoPreview = document.getElementById('photoPreview');
   if (w?.photo) {
-    photoPreview.innerHTML = `<img src="${w.photo}" alt="">`;
+    photoPreview.innerHTML = `<img src="${w.photo}" alt="" class="${w.photo.startsWith('data:image/png') ? 'thumb-isolated' : ''}">`;
+    // Si la photo commence par "data:image/png" elle a probablement une transparence (issue d'isolation)
+    photoPreview.classList.toggle('transparent-bg', w.photo.startsWith('data:image/png'));
     photoData = w.photo;
   } else {
     photoPreview.innerHTML = '<span>Aucune photo</span>';
+    photoPreview.classList.remove('transparent-bg');
   }
+
+  // Reset statut isolation
+  const isoStatus = document.getElementById('isolateStatus');
+  if (isoStatus) { isoStatus.textContent = ''; isoStatus.className = 'isolate-status'; }
 
   document.getElementById('btnDelete').style.display = id ? 'inline-block' : 'none';
   document.getElementById('btnDuplicate').style.display = id ? 'inline-block' : 'none';
@@ -5310,6 +5587,75 @@ function extractWineInfo(text) {
   return result;
 }
 
+// === ISOLATION BOUTEILLE (MediaPipe Selfie Segmentation) ===
+// MediaPipe est chargé à la demande (première photo avec toggle activé).
+// Selfie Segmentation sépare le sujet principal du fond. Pour une bouteille
+// posée au centre de l'image, ça marche raisonnablement bien.
+
+let mediapipeLoadPromise = null;
+let selfieSegmentation = null;
+
+async function loadMediaPipe() {
+  if (selfieSegmentation) return selfieSegmentation;
+  if (mediapipeLoadPromise) return mediapipeLoadPromise;
+
+  mediapipeLoadPromise = (async () => {
+    // Chargement dynamique du script MediaPipe depuis CDN
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Échec chargement MediaPipe'));
+      document.head.appendChild(script);
+    });
+
+    // Initialiser le segmenteur
+    const ss = new SelfieSegmentation({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/${file}`,
+    });
+    ss.setOptions({ modelSelection: 1 }); // 1 = modèle général (pas seulement visage)
+    await ss.initialize();
+    selfieSegmentation = ss;
+    return ss;
+  })();
+
+  return mediapipeLoadPromise;
+}
+
+// Applique la segmentation à un canvas source, renvoie un canvas avec fond transparent
+async function isolateSubject(sourceCanvas) {
+  const ss = await loadMediaPipe();
+
+  return new Promise((resolve, reject) => {
+    let timeout = setTimeout(() => reject(new Error('Timeout segmentation (>15s)')), 15000);
+
+    ss.onResults((results) => {
+      clearTimeout(timeout);
+      try {
+        const out = document.createElement('canvas');
+        out.width = sourceCanvas.width;
+        out.height = sourceCanvas.height;
+        const octx = out.getContext('2d');
+
+        // 1. Dessiner l'image source
+        octx.drawImage(sourceCanvas, 0, 0);
+
+        // 2. Appliquer le masque de segmentation : garder le sujet, effacer le fond
+        octx.globalCompositeOperation = 'destination-in';
+        octx.drawImage(results.segmentationMask, 0, 0, out.width, out.height);
+        octx.globalCompositeOperation = 'source-over';
+
+        resolve(out);
+      } catch (e) {
+        reject(e);
+      }
+    });
+
+    // Lancer le traitement
+    ss.send({ image: sourceCanvas }).catch(reject);
+  });
+}
+
 // Photo handling
 document.getElementById('f_photo').addEventListener('change', (e) => {
   const file = e.target.files[0];
@@ -5327,48 +5673,117 @@ document.getElementById('f_photo').addEventListener('change', (e) => {
       else if (h > maxSize) { w = w * maxSize / h; h = maxSize; }
       canvas.width = w; canvas.height = h;
       const ctx = canvas.getContext('2d');
-      // Lissage haute qualité
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, w, h);
 
-      // Essai avec qualités dégressives jusqu'à être sous 900 Ko
-      // (les iPhones produisent souvent des photos très lourdes qui compressent beaucoup)
+      // === ISOLATION OPTIONNELLE : supprimer le fond avec MediaPipe ===
+      const isolateEnabled = document.getElementById('f_isolate').checked;
+      const isolateStatus = document.getElementById('isolateStatus');
+      const preview = document.getElementById('photoPreview');
+      let workingCanvas = canvas;
+      let useTransparent = false;
+
+      if (isolateEnabled) {
+        isolateStatus.className = 'isolate-status processing';
+        isolateStatus.innerHTML = '<span class="isolate-spinner"></span>Isolation de la bouteille en cours…';
+        try {
+          const isolated = await isolateSubject(canvas);
+          workingCanvas = isolated;
+          useTransparent = true;
+          isolateStatus.className = 'isolate-status success';
+          isolateStatus.textContent = '✓ Bouteille isolée du fond';
+        } catch (err) {
+          console.warn('Isolation échouée:', err);
+          isolateStatus.className = 'isolate-status err';
+          isolateStatus.textContent = '⚠ Isolation impossible, photo originale conservée';
+          // On continue avec le canvas non isolé
+        }
+      } else {
+        isolateStatus.className = 'isolate-status';
+        isolateStatus.textContent = '';
+      }
+
+      // === Compression ===
+      // Si transparence : on garde le format PNG (préserve l'alpha) mais on contrôle la taille
+      // Si pas de transparence : JPEG qualité adaptative
       const MAX_SIZE_KB = 900;
-      const qualities = [0.92, 0.88, 0.84, 0.80, 0.75, 0.70, 0.65];
       let finalData = null;
       let finalQuality = 0;
-      for (const q of qualities) {
-        const data = canvas.toDataURL('image/jpeg', q);
-        // Estimation du poids : base64 ≈ 4/3 × taille binaire
-        const sizeKB = (data.length * 0.75) / 1024;
-        if (sizeKB <= MAX_SIZE_KB) {
-          finalData = data;
-          finalQuality = q;
-          break;
+
+      if (useTransparent) {
+        // PNG pour la transparence, tester en quelques tailles si trop gros
+        const tryMaxSizes = [1200, 1000, 900, 800, 700, 600];
+        for (const ms of tryMaxSizes) {
+          const pngCanvas = document.createElement('canvas');
+          let pw = workingCanvas.width, ph = workingCanvas.height;
+          if (pw > ph && pw > ms) { ph = ph * ms / pw; pw = ms; }
+          else if (ph > ms) { pw = pw * ms / ph; ph = ms; }
+          pngCanvas.width = pw; pngCanvas.height = ph;
+          const pctx = pngCanvas.getContext('2d');
+          pctx.imageSmoothingEnabled = true;
+          pctx.imageSmoothingQuality = 'high';
+          pctx.drawImage(workingCanvas, 0, 0, pw, ph);
+          const data = pngCanvas.toDataURL('image/png');
+          const sizeKB = (data.length * 0.75) / 1024;
+          if (sizeKB <= MAX_SIZE_KB) {
+            finalData = data;
+            finalQuality = 1.0;
+            console.log(`Photo PNG transparente : ${pw}×${Math.round(ph)}, ~${Math.round(sizeKB)} Ko`);
+            break;
+          }
+        }
+        // Si le PNG reste trop gros même à 600px, on bascule en JPEG avec fond crème
+        if (!finalData) {
+          console.warn('PNG trop gros, bascule en JPEG avec fond crème');
+          const jpegCanvas = document.createElement('canvas');
+          jpegCanvas.width = workingCanvas.width;
+          jpegCanvas.height = workingCanvas.height;
+          const jctx = jpegCanvas.getContext('2d');
+          // Fond crème (couleur de ton app)
+          jctx.fillStyle = '#f5e9d6';
+          jctx.fillRect(0, 0, jpegCanvas.width, jpegCanvas.height);
+          jctx.drawImage(workingCanvas, 0, 0);
+          useTransparent = false;
+          workingCanvas = jpegCanvas;
         }
       }
-      // Filet de sécurité : si même à 0.65 c'est trop gros, on réduit les dimensions
+
       if (!finalData) {
-        const smallCanvas = document.createElement('canvas');
-        const reducedMax = 900;
-        let rw = w, rh = h;
-        if (rw > rh && rw > reducedMax) { rh = rh * reducedMax / rw; rw = reducedMax; }
-        else if (rh > reducedMax) { rw = rw * reducedMax / rh; rh = reducedMax; }
-        smallCanvas.width = rw; smallCanvas.height = rh;
-        const sctx = smallCanvas.getContext('2d');
-        sctx.imageSmoothingEnabled = true;
-        sctx.imageSmoothingQuality = 'high';
-        sctx.drawImage(img, 0, 0, rw, rh);
-        finalData = smallCanvas.toDataURL('image/jpeg', 0.75);
-        finalQuality = 0.75;
+        // JPEG : cascade de qualités dégressives
+        const qualities = [0.92, 0.88, 0.84, 0.80, 0.75, 0.70, 0.65];
+        for (const q of qualities) {
+          const data = workingCanvas.toDataURL('image/jpeg', q);
+          const sizeKB = (data.length * 0.75) / 1024;
+          if (sizeKB <= MAX_SIZE_KB) {
+            finalData = data;
+            finalQuality = q;
+            break;
+          }
+        }
+        // Filet de sécurité : réduction dimensions
+        if (!finalData) {
+          const smallCanvas = document.createElement('canvas');
+          const reducedMax = 900;
+          let rw = workingCanvas.width, rh = workingCanvas.height;
+          if (rw > rh && rw > reducedMax) { rh = rh * reducedMax / rw; rw = reducedMax; }
+          else if (rh > reducedMax) { rw = rw * reducedMax / rh; rh = reducedMax; }
+          smallCanvas.width = rw; smallCanvas.height = rh;
+          const sctx = smallCanvas.getContext('2d');
+          sctx.imageSmoothingEnabled = true;
+          sctx.imageSmoothingQuality = 'high';
+          sctx.drawImage(workingCanvas, 0, 0, rw, rh);
+          finalData = smallCanvas.toDataURL('image/jpeg', 0.75);
+          finalQuality = 0.75;
+        }
       }
 
       photoData = finalData;
-      document.getElementById('photoPreview').innerHTML = `<img src="${photoData}" alt="">`;
-      console.log(`Photo compressée : ${w}×${Math.round(h)} à qualité ${finalQuality}, ~${Math.round((finalData.length * 0.75) / 1024)} Ko`);
+      preview.innerHTML = `<img src="${photoData}" alt="">`;
+      preview.classList.toggle('transparent-bg', useTransparent);
+      console.log(`Photo finale : ${workingCanvas.width}×${workingCanvas.height}, qualité ${finalQuality}, ~${Math.round((finalData.length * 0.75) / 1024)} Ko${useTransparent ? ' (PNG transparent)' : ' (JPEG)'}`);
 
-      // Lancer l'OCR sur une version haute qualité (pas trop réduite)
+      // Lancer l'OCR sur une version haute qualité (toujours sur l'image non isolée pour préserver le texte)
       const ocrCanvas = document.createElement('canvas');
       const ocrMaxSize = 1400;
       let ow = img.width, oh = img.height;
