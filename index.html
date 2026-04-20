@@ -2775,6 +2775,7 @@ footer em {
       <div class="modal-actions">
         <button class="btn" id="btnDuplicate" title="Créer un autre millésime/format identique">⎘ Dupliquer</button>
         <button class="btn" id="btnShare" title="Partager cette fiche">↗ Partager</button>
+        <button class="btn" id="btnWebSearch" title="Rechercher ce vin sur le web">🔍 Voir sur le web</button>
         <button class="btn" id="btnDrink" title="Marquer une bouteille comme bue">🍷 Boire une</button>
         <button class="btn" id="btnCancel">Annuler</button>
         <button class="btn btn-primary" id="btnSave">Enregistrer</button>
@@ -4796,6 +4797,7 @@ function openModal(id) {
   document.getElementById('btnDelete').style.display = id ? 'inline-block' : 'none';
   document.getElementById('btnDuplicate').style.display = id ? 'inline-block' : 'none';
   document.getElementById('btnShare').style.display = id ? 'inline-block' : 'none';
+  document.getElementById('btnWebSearch').style.display = id ? 'inline-block' : 'none';
   document.getElementById('btnDrink').style.display = id && (w?.stock||0) > 0 ? 'inline-block' : 'none';
 
   updateApogeeInfo();
@@ -5220,6 +5222,27 @@ document.getElementById('btnShare').addEventListener('click', async () => {
     // Ultime fallback : prompt avec le texte à copier
     prompt('Copie ce résumé :', shareText);
   }
+});
+
+// Bouton "Voir sur le web" : ouvre une recherche Wine-Searcher dans un nouvel onglet
+// On construit une requête pertinente et on laisse l'utilisateur explorer les infos web
+document.getElementById('btnWebSearch').addEventListener('click', () => {
+  if (!editingId) return;
+  const w = wines.find(x => x.id === editingId);
+  if (!w) return;
+
+  // Construire une requête la plus précise possible
+  const parts = [w.domaine, w.cuvee, w.appellation, w.millesime].filter(Boolean);
+  const query = parts.join(' ').trim();
+  if (!query) {
+    alert('Remplis au moins le domaine ou l\'appellation pour pouvoir rechercher ce vin.');
+    return;
+  }
+
+  // Wine-Searcher est la référence pour les prix, cotes, avis professionnels
+  // Sa recherche accepte les espaces encodés. Format officiel de leur URL :
+  const url = `https://www.wine-searcher.com/find/${encodeURIComponent(query.replace(/\s+/g, '+')).replace(/%2B/g, '+')}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
 });
 
 document.getElementById('btnDuplicate').addEventListener('click', async () => {
