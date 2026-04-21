@@ -4544,9 +4544,79 @@ function setupAppellationCombo(currentPays, currentRegion, currentValue) {
     } else {
       inputEl.classList.remove('show');
       inputEl.value = selectEl.value;
+      // Pré-remplissage pays/région en se basant sur les vins existants de ce domaine
+      autofillFromDomaine(selectEl.value);
     }
   });
 })();
+
+// Quand un domaine existant est sélectionné, on retrouve son pays et sa région
+// les plus fréquents parmi les vins déjà saisis. On ne remplit que si les champs
+// sont vides (ou ont leur valeur par défaut "Autre") pour ne pas écraser la saisie.
+function autofillFromDomaine(domaineName) {
+  if (!domaineName || domaineName === '__other__') return;
+  // Tous les vins actifs (on peut inclure les bus, ils restent des références)
+  const matches = wines.filter(w => (w.domaine || '').toLowerCase() === domaineName.toLowerCase());
+  if (matches.length === 0) return;
+
+  // Compter les pays et régions rencontrés pour ce domaine
+  const paysCount = {};
+  const regionCount = {};
+  matches.forEach(w => {
+    if (w.pays) paysCount[w.pays] = (paysCount[w.pays] || 0) + 1;
+    if (w.region) regionCount[w.region] = (regionCount[w.region] || 0) + 1;
+  });
+
+  const mostCommon = (obj) => {
+    let best = null, max = 0;
+    for (const k in obj) if (obj[k] > max) { max = obj[k]; best = k; }
+    return best;
+  };
+  const bestPays = mostCommon(paysCount);
+  const bestRegion = mostCommon(regionCount);
+
+  // Pré-remplir Pays si vide ou "Autre"
+  const paysInput = document.getElementById('f_pays');
+  const paysSelect = document.getElementById('f_pays_select');
+  const currentPays = paysInput.value.trim();
+  if (bestPays && (!currentPays || currentPays === 'Autre')) {
+    // Vérifier si le pays est dans le select
+    const options = [...paysSelect.options].map(o => o.value);
+    if (options.includes(bestPays)) {
+      paysSelect.value = bestPays;
+      paysInput.value = bestPays;
+      paysInput.classList.remove('show');
+    } else {
+      paysSelect.value = '__other__';
+      paysInput.value = bestPays;
+      paysInput.classList.add('show');
+    }
+    // Repeupler les régions du nouveau pays
+    setupRegionCombo(bestPays, bestRegion || '');
+    setupAppellationCombo(bestPays, bestRegion || '', '');
+  }
+
+  // Pré-remplir Région si vide ou "Autre", et cohérente avec le pays qu'on vient de remplir
+  const regionInput = document.getElementById('f_region');
+  const currentRegion = regionInput.value.trim();
+  if (bestRegion && (!currentRegion || currentRegion === 'Autre')) {
+    const regionSelect = document.getElementById('f_region_select');
+    const options = [...regionSelect.options].map(o => o.value);
+    if (options.includes(bestRegion)) {
+      regionSelect.value = bestRegion;
+      regionInput.value = bestRegion;
+      regionInput.classList.remove('show');
+    } else {
+      regionSelect.value = '__other__';
+      regionInput.value = bestRegion;
+      regionInput.classList.add('show');
+    }
+    // Repeupler les appellations de la nouvelle région
+    setupAppellationCombo(paysInput.value.trim(), bestRegion, '');
+  }
+
+  updateApogeeInfo();
+}
 
 // Listener Pays : met à jour Région (et par conséquent Appellation)
 document.getElementById('f_pays_select').addEventListener('change', () => {
