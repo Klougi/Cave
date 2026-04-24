@@ -756,6 +756,118 @@ body.dark .tabs-secondary {
 .wine-row, .wine-card {
   animation: fadeInUp 0.4s ease backwards;
 }
+
+/* === REGROUPEMENT PAR CUVÉE (plusieurs millésimes) === */
+.wine-cuvee-parent {
+  background: linear-gradient(90deg, rgba(184, 149, 74, 0.06), rgba(184, 149, 74, 0.02));
+  border-left: 3px solid var(--gold);
+  border-bottom: 1px solid var(--border);
+  cursor: default;
+}
+.wine-cuvee-parent:hover {
+  background: linear-gradient(90deg, rgba(184, 149, 74, 0.15), rgba(184, 149, 74, 0.05));
+  transform: none;
+}
+.wine-cuvee-parent::before { display: none; }
+
+/* Puces des millésimes dans la ligne parent */
+.cuvee-years-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.3rem;
+}
+.cuvee-year-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.12rem 0.5rem;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.cuvee-year-chip em {
+  font-style: normal;
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+.cuvee-year-chip.empty {
+  opacity: 0.45;
+  text-decoration: line-through;
+  text-decoration-color: rgba(0,0,0,0.25);
+}
+
+/* Indicateur "X millésimes" cliquable pour déplier */
+.cuvee-expander {
+  font-family: 'Fraunces', serif;
+  font-size: 0.7rem !important;
+  color: var(--gold) !important;
+  font-style: italic;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s, transform 0.2s;
+}
+.cuvee-expander:hover { color: var(--bordeaux) !important; }
+.wine-cuvee-parent.expanded .cuvee-expander { transform: rotate(180deg); display: inline-block; }
+
+/* Sous-lignes (millésimes dépliés) */
+.cuvee-subrows {
+  display: none;
+  background: rgba(0, 0, 0, 0.015);
+  border-bottom: 1px solid var(--border);
+}
+.cuvee-subrows.expanded { display: block; }
+body.dark .cuvee-subrows { background: rgba(255, 255, 255, 0.02); }
+
+.wine-millesime-sub {
+  grid-template-columns: 56px 80px 130px 90px 90px 80px !important;
+  padding: 0.7rem 0.5rem !important;
+  padding-left: 1.5rem !important;
+  font-size: 0.88rem;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.06) !important;
+  gap: 0.8rem !important;
+}
+.wine-thumb-spacer {
+  width: 40px;
+  opacity: 0.5;
+  font-size: 1.5rem;
+  text-align: center;
+  color: var(--gold);
+}
+.wine-thumb-spacer::before {
+  content: '↳';
+}
+.wine-year-big {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--bordeaux);
+  text-align: center;
+}
+body.dark .wine-year-big { color: #f5ecd8; }
+
+.fmt-stock-total .fmt-chip {
+  padding: 0.3rem 0.7rem;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .wine-millesime-sub {
+    grid-template-columns: 35px 60px 1fr 70px 70px 60px !important;
+    padding-left: 0.8rem !important;
+    gap: 0.4rem !important;
+    font-size: 0.76rem;
+  }
+  .wine-year-big { font-size: 1.1rem; }
+  .cuvee-year-chip { font-size: 0.65rem; padding: 0.1rem 0.4rem; }
+  .cuvee-expander { font-size: 0.62rem !important; }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -3929,12 +4041,34 @@ function renderList() {
 
   const handleClick = (el) => {
     el.addEventListener('click', (e) => {
+      // 1. Clic sur une puce de millésime dans la ligne parent → ouvrir directement ce millésime
+      const yearChip = e.target.closest('.cuvee-year-chip');
+      if (yearChip) {
+        e.stopPropagation();
+        const ids = (yearChip.dataset.groupIds || '').split(',').map(Number).filter(Boolean);
+        if (ids.length === 1) openModal(ids[0]);
+        else if (ids.length > 1) openFormatChooser(ids);
+        return;
+      }
+      // 2. Clic sur une chip de format (bouteille/magnum/jéroboam)
       const chip = e.target.closest('[data-format-id]');
       if (chip) {
         e.stopPropagation();
         openModal(parseInt(chip.dataset.formatId));
         return;
       }
+      // 3. Clic sur une ligne parent "cuvée groupée" → dépliage/repliage
+      if (el.classList.contains('wine-cuvee-parent')) {
+        const key = el.dataset.groupKey;
+        const subs = container.querySelector(`.cuvee-subrows[data-parent-key="${key}"]`);
+        if (subs) {
+          const isExpanded = subs.classList.toggle('expanded');
+          el.classList.toggle('expanded', isExpanded);
+        }
+        return;
+      }
+      // 4. Clic sur une ligne normale ou une sous-ligne millésime → ouvrir la fiche
+      if (!el.dataset.ids) return;
       const ids = el.dataset.ids.split(',').map(Number);
       if (ids.length === 1) {
         openModal(ids[0]);
@@ -4237,18 +4371,41 @@ function renderGroupedByDomaine(groupedCuvees) {
     );
 
     for (const a of appels) {
-      // Trier les cuvées dans l'appellation : millésime décroissant puis cuvée alpha
-      a.items.sort((x, y) => {
-        const yearDiff = (y.display.millesime || 0) - (x.display.millesime || 0);
-        if (yearDiff !== 0) return yearDiff;
-        return (x.display.cuvee || '').localeCompare(y.display.cuvee || '', 'fr', { sensitivity: 'base' });
+      // === REGROUPEMENT PAR CUVÉE ===
+      // Plusieurs millésimes de la même cuvée sont rassemblés sous une ligne parent
+      const byCuvee = new Map();
+      a.items.forEach(g => {
+        const cuveeKey = [
+          (g.display.cuvee || '').trim().toLowerCase(),
+          g.display.couleur || '',
+        ].join('|');
+        if (!byCuvee.has(cuveeKey)) {
+          byCuvee.set(cuveeKey, { name: g.display.cuvee || '', color: g.display.couleur || '', items: [] });
+        }
+        byCuvee.get(cuveeKey).items.push(g);
       });
+
+      // Trier les cuvées par nom
+      const cuvees = [...byCuvee.values()].sort((x, y) =>
+        (x.name || '').localeCompare(y.name || '', 'fr', { sensitivity: 'base' })
+      );
 
       // Afficher le nom de l'appellation si plus d'une appellation dans le domaine
       if (appels.length > 1) {
         html += `<div class="appellation-header">${a.name}</div>`;
       }
-      html += a.items.map(renderCuveeRow).join('');
+
+      for (const c of cuvees) {
+        // Trier les millésimes de la cuvée : décroissant (plus récent en haut)
+        c.items.sort((x, y) => (y.display.millesime || 0) - (x.display.millesime || 0));
+        if (c.items.length === 1) {
+          // Un seul millésime : rendu classique sans regroupement
+          html += renderCuveeRow(c.items[0]);
+        } else {
+          // Plusieurs millésimes : rendu groupé
+          html += renderCuveeGroup(c);
+        }
+      }
     }
   }
   return html;
@@ -4345,6 +4502,108 @@ function wineGlassSvg(couleur) {
     <line x1="12" y1="16" x2="12" y2="26" stroke="#3d342e" stroke-width="0.8"/>
     <line x1="7" y1="28" x2="17" y2="28" stroke="#3d342e" stroke-width="0.8" stroke-linecap="round"/>
   </svg>`;
+}
+
+function renderCuveeGroup(cuveeGroup) {
+  // cuveeGroup.items = tableau de groupes (groupByCuvee) avec des millésimes différents
+  // On affiche une ligne parent + une sous-ligne par millésime
+  const items = cuveeGroup.items;
+  // Pour la ligne parent, prendre le premier (le plus récent après tri)
+  const headerWine = items[0].display;
+  const thumbHtml = headerWine.photo
+    ? `<img src="${headerWine.photo}" alt="">`
+    : `<div class="wine-thumb-empty">sans<br>photo</div>`;
+
+  // Totaux tous millésimes confondus
+  const totalBottles = items.reduce((s, g) => s + g.totalStock, 0);
+  const totalValue = items.reduce((s, g) => s + g.totalValue, 0);
+
+  // Liste des millésimes compacts : ex "2020 (2) · 2021 · 2022 (5)"
+  // Les millésimes avec stock = 0 sont grisés
+  const millesimesInline = items.map(g => {
+    const w = g.display;
+    const stock = g.totalStock;
+    const isBu = stock === 0;
+    return `<span class="cuvee-year-chip ${isBu ? 'empty' : ''}" data-group-ids="${g.ids.join(',')}">${w.millesime || '—'}${stock > 0 ? ` <em>×${stock}</em>` : ''}</span>`;
+  }).join('');
+
+  // Apogée "globale" (basée sur le millésime le plus récent dispo)
+  const apogee = computeApogee(headerWine);
+
+  // Ligne parent cliquable : déploie/replie les sous-lignes
+  const groupKey = 'cuvee-group-' + items.map(g => g.ids[0]).join('-');
+
+  // Les sous-lignes (une par millésime)
+  let subRowsHtml = '';
+  items.forEach(g => {
+    subRowsHtml += renderMillesimeSubRow(g);
+  });
+
+  return `
+    <div class="wine-row wine-cuvee-parent" data-group-key="${groupKey}">
+      <div class="wine-thumb">${thumbHtml}</div>
+      <div>${wineGlassSvg(headerWine.couleur)}</div>
+      <div>
+        <div class="wine-domaine">${flagOf(headerWine.pays)} ${headerWine.domaine||''}</div>
+        <div class="wine-appellation">${headerWine.appellation||''}</div>
+        ${starsHtml(headerWine.rating)}
+      </div>
+      <div class="wine-cuvee">
+        ${headerWine.cuvee||'—'}
+        <div class="cuvee-years-inline">${millesimesInline}</div>
+      </div>
+      <div class="wine-year cuvee-expander" title="Déplier les millésimes">▾ ${items.length} mill.</div>
+      <div class="fmt-stock fmt-stock-total">
+        <span class="fmt-chip fmt-bout">${totalBottles}</span>
+      </div>
+      <div class="wine-lieu lieu-${headerWine.lieu||'Maison'}">
+        ${headerWine.lieu||'Maison'}
+        <span class="wine-sublieu">cuvée groupée</span>
+      </div>
+      <div class="wine-apogee ${apogee.class}">${apogee.text}</div>
+      <div class="wine-price">
+        <span class="total">${fmtPrice(totalValue)} tot.</span>
+      </div>
+    </div>
+    <div class="cuvee-subrows" data-parent-key="${groupKey}">
+      ${subRowsHtml}
+    </div>
+  `;
+}
+
+// Sous-ligne millésime dans un groupe de cuvée
+function renderMillesimeSubRow(group) {
+  const w = group.display;
+  const apogee = computeApogee(w);
+  const refWine = group.formats.Bouteille || group.formats.Magnum || group.formats.Jéroboam;
+  const refPrice = refWine ? refWine.prix : 0;
+
+  function chip(fmtName, cls) {
+    const entry = group.formats[fmtName];
+    if (entry && entry.stock > 0) {
+      return `<span class="fmt-chip ${cls}" data-format-id="${entry.id}" title="${fmtName} · ${entry.stock} en stock">${entry.stock}</span>`;
+    } else if (entry) {
+      return `<span class="fmt-chip fmt-empty" data-format-id="${entry.id}" title="${fmtName} · stock vide">0</span>`;
+    } else {
+      return `<span class="fmt-chip fmt-none" title="Pas de ${fmtName}">—</span>`;
+    }
+  }
+
+  return `
+    <div class="wine-row wine-millesime-sub" data-ids="${group.ids.join(',')}">
+      <div class="wine-thumb-spacer"></div>
+      <div class="wine-year-big">${w.millesime||'—'}</div>
+      <div class="fmt-stock">
+        ${chip('Bouteille', 'fmt-bout')}<span class="fmt-sep">·</span>${chip('Magnum', 'fmt-mag')}<span class="fmt-sep">·</span>${chip('Jéroboam', 'fmt-jero')}
+      </div>
+      <div class="wine-lieu lieu-${w.lieu||'Maison'}">${w.lieu||'Maison'}${w.subLieu ? `<span class="wine-sublieu">${w.subLieu}</span>` : ''}</div>
+      <div class="wine-apogee ${apogee.class}">${apogee.text}</div>
+      <div class="wine-price">
+        ${fmtPrice(refPrice)}
+        ${group.totalValue>0?`<span class="total">${fmtPrice(group.totalValue)} tot.</span>`:''}
+      </div>
+    </div>
+  `;
 }
 
 function renderCuveeRow(group) {
