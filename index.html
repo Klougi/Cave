@@ -2418,6 +2418,156 @@ body.dark .domaine-detail-header {
   border-bottom-color: #e8c27a;
 }
 
+/* === VUE LISTE NIVEAU 1 : RÉPERTOIRE DES DOMAINES === */
+.domaine-index-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 1.5rem 0.5rem 1rem;
+  border-bottom: 1px solid var(--gold);
+  margin-bottom: 0.5rem;
+}
+.dih-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--bordeaux);
+  letter-spacing: 0.02em;
+}
+body.dark .dih-title { color: #f5ecd8; }
+.dih-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+.domaine-index-row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto 16px;
+  gap: 1.2rem;
+  align-items: center;
+  padding: 1rem 0.8rem;
+  border-bottom: 1px dotted var(--border);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, padding 0.2s;
+  position: relative;
+}
+.domaine-index-row:hover {
+  background: linear-gradient(90deg, rgba(184,149,74,0.1), rgba(184,149,74,0.02));
+  transform: translateX(4px);
+  padding-left: 1.2rem;
+}
+.domaine-index-row:hover .dir-arrow {
+  color: var(--bordeaux);
+  transform: translateX(3px);
+}
+
+.dir-flag {
+  font-size: 1.2rem;
+  text-align: center;
+}
+.dir-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+body.dark .dir-name { color: #f5ecd8; }
+
+.dir-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.dir-bottles {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+.dir-bottles small {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.dir-value {
+  font-size: 0.95rem;
+  color: var(--bordeaux);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+body.dark .dir-value { color: #f5ecd8; }
+
+.dir-arrow {
+  font-size: 1.4rem;
+  color: var(--gold);
+  font-weight: 300;
+  transition: transform 0.2s, color 0.2s;
+}
+
+/* === VUE LISTE NIVEAU 2 : DÉTAIL D'UN DOMAINE === */
+.domaine-detail-back {
+  font-family: 'Fraunces', serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  cursor: pointer;
+  padding: 1rem 0.5rem 0.5rem;
+  display: inline-block;
+  transition: color 0.2s, transform 0.2s;
+}
+.domaine-detail-back:hover {
+  color: var(--bordeaux);
+  transform: translateX(-3px);
+}
+body.dark .domaine-detail-back:hover { color: #f5ecd8; }
+
+.domaine-detail-header {
+  padding: 0.5rem 0.5rem 1.5rem;
+  border-bottom: 1px solid var(--gold);
+  margin-bottom: 1rem;
+}
+.domaine-detail-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 2.2rem;
+  color: var(--bordeaux);
+  margin-bottom: 0.3rem;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+body.dark .domaine-detail-header h2 { color: #f5ecd8; }
+.ddh-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 900px) {
+  .domaine-index-header { padding: 1rem 0.5rem 0.6rem; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+  .dih-title { font-size: 1.2rem; }
+  .dih-count { font-size: 0.62rem; }
+  .domaine-index-row {
+    grid-template-columns: 24px 1fr auto 12px;
+    gap: 0.7rem;
+    padding: 0.85rem 0.6rem;
+  }
+  .domaine-index-row:hover { transform: none; padding-left: 0.6rem; }
+  .dir-name { font-size: 1.05rem; }
+  .dir-stats { gap: 0.7rem; }
+  .dir-bottles, .dir-value { font-size: 0.78rem; }
+  .dir-bottles small { font-size: 0.5rem; }
+  .domaine-detail-header h2 { font-size: 1.5rem; }
+  .ddh-meta { font-size: 0.65rem; }
+}
+
 /* Ajustements spécifiques pour la lisibilité en dark */
 body.dark .fmt-chip.fmt-bout { color: #e89eb0; }  /* plus clair que bordeaux */
 body.dark .fmt-chip.fmt-mag  { color: #f5dca3; }
@@ -4013,28 +4163,22 @@ function renderList() {
     } else {
       html = renderDomainesGrid(filtered);
     }
-  } else if ((currentTab === 'all' || currentTab.startsWith('country:')) && sort === 'region') {
-    // Vue "Tous" ou "pays" : régions en sections, puis domaines en sous-sections
-    const byRegion = {};
-    filtered.forEach(w => {
-      if (!byRegion[w.region]) byRegion[w.region] = [];
-      byRegion[w.region].push(w);
-    });
-    for (const region of Object.keys(byRegion)) {
-      const wsRegion = byRegion[region];
-      const groupedByCuvee = groupByCuvee(wsRegion);
-      const totalRegion = groupedByCuvee.reduce((s,g)=>s+g.totalValue,0);
-      html += `<div class="region-header"><span>${region}</span><span class="count">${groupedByCuvee.length} cuvées · ${fmtPrice(totalRegion)}</span></div>`;
-      html += renderGroupedByDomaine(groupedByCuvee);
-    }
-  } else if (currentTab !== 'all' && !currentTab.startsWith('country:')) {
-    // Onglet d'une région spécifique : regroupement par domaine
-    const groupedByCuvee = groupByCuvee(filtered);
-    html = renderGroupedByDomaine(groupedByCuvee);
   } else {
-    // Vue "Tous" ou "pays" avec un autre tri : liste à plat
-    const grouped = groupByCuvee(filtered);
-    html = grouped.map(renderCuveeRow).join('');
+    // === VUE LISTE EN 2 NIVEAUX ===
+    // Niveau 1 : liste sobre des domaines (drapeau + nom + nb bouteilles + valeur)
+    // Niveau 2 : détail du domaine sélectionné (cuvées avec photos)
+    if (currentDomaine) {
+      // Niveau 2 : on filtre les vins du domaine sélectionné, dans le pool déjà filtré
+      const domaineWines = filtered.filter(w =>
+        (w.domaine || '').trim().toLowerCase() === currentDomaine.trim().toLowerCase()
+      );
+      const groupedByCuvee = groupByCuvee(domaineWines);
+      html = renderDomaineDetailHeader(currentDomaine, domaineWines);
+      html += renderGroupedByDomaine(groupedByCuvee);
+    } else {
+      // Niveau 1 : liste sobre des domaines uniquement
+      html = renderDomainesListLevel1(filtered);
+    }
   }
 
   container.innerHTML = html;
@@ -4081,7 +4225,7 @@ function renderList() {
   // Les wine-cards normales (pas les cartes de domaine)
   container.querySelectorAll('.wine-card:not(.domaine-card)').forEach(handleClick);
 
-  // Clic sur une carte de domaine → entrer dans ce domaine
+  // Clic sur une carte de domaine (vue grille) → entrer dans ce domaine
   container.querySelectorAll('.domaine-card').forEach(card => {
     card.addEventListener('click', () => {
       currentDomaine = card.dataset.domaine;
@@ -4090,8 +4234,17 @@ function renderList() {
     });
   });
 
-  // Clic sur le bouton retour
-  const backBtn = container.querySelector('.domaine-back');
+  // Clic sur une ligne de domaine (vue liste niveau 1) → entrer dans ce domaine
+  container.querySelectorAll('.domaine-index-row').forEach(row => {
+    row.addEventListener('click', () => {
+      currentDomaine = row.dataset.domaine;
+      renderList();
+      document.querySelector('.wine-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Clic sur le bouton retour (vue grille OU liste)
+  const backBtn = container.querySelector('.domaine-back, #domaineBackBtn');
   if (backBtn) {
     backBtn.addEventListener('click', () => {
       currentDomaine = null;
@@ -4601,6 +4754,88 @@ function renderMillesimeSubRow(group) {
       <div class="wine-price">
         ${fmtPrice(refPrice)}
         ${group.totalValue>0?`<span class="total">${fmtPrice(group.totalValue)} tot.</span>`:''}
+      </div>
+    </div>
+  `;
+}
+
+// === VUE LISTE NIVEAU 1 : INDEX DES DOMAINES ===
+// Affichage sobre, façon répertoire : drapeau + nom + nb bouteilles + valeur
+// Le clic sur un domaine fait passer en niveau 2 (détail des cuvées)
+function renderDomainesListLevel1(filteredWines) {
+  // Regrouper les vins par domaine (insensible à la casse)
+  const byDomaine = new Map();
+  filteredWines.forEach(w => {
+    const key = (w.domaine || '').trim().toLowerCase() || '(sans domaine)';
+    if (!byDomaine.has(key)) {
+      byDomaine.set(key, {
+        name: w.domaine || '(sans domaine)',
+        pays: w.pays || 'Autre',
+        regions: new Set(),
+        totalBottles: 0,
+        totalValue: 0,
+        cuvees: new Set(),
+      });
+    }
+    const d = byDomaine.get(key);
+    if (w.region) d.regions.add(w.region);
+    d.totalBottles += (w.stock || 0);
+    d.totalValue += (w.stock || 0) * (w.prix || 0);
+    const cuveeKey = [(w.cuvee||'').trim().toLowerCase(), (w.appellation||'').trim().toLowerCase()].join('|');
+    d.cuvees.add(cuveeKey);
+  });
+
+  // Trier les domaines : par valeur totale décroissante (les plus précieux en haut)
+  // C'est un choix de UX qui met en avant les pièces fortes de la cave
+  const domaines = [...byDomaine.values()].sort((a, b) => {
+    if (b.totalValue !== a.totalValue) return b.totalValue - a.totalValue;
+    return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' });
+  });
+
+  if (domaines.length === 0) return '';
+
+  // En-tête sobre
+  const totalDomaines = domaines.length;
+  const totalBottlesAll = domaines.reduce((s, d) => s + d.totalBottles, 0);
+  const totalValueAll = domaines.reduce((s, d) => s + d.totalValue, 0);
+  let html = `
+    <div class="domaine-index-header">
+      <span class="dih-title">Répertoire des domaines</span>
+      <span class="dih-count">${totalDomaines} domaine${totalDomaines>1?'s':''} · ${totalBottlesAll} bout. · ${fmtPrice(totalValueAll)}</span>
+    </div>
+  `;
+
+  // Liste des domaines
+  html += domaines.map(d => `
+    <div class="domaine-index-row" data-domaine="${d.name.replace(/"/g, '&quot;')}">
+      <div class="dir-flag">${flagOf(d.pays)}</div>
+      <div class="dir-name">${d.name}</div>
+      <div class="dir-stats">
+        <span class="dir-bottles">${d.totalBottles}<small>bout.</small></span>
+        <span class="dir-value">${fmtPrice(d.totalValue)}</span>
+      </div>
+      <div class="dir-arrow">›</div>
+    </div>
+  `).join('');
+
+  return html;
+}
+
+// En-tête du niveau 2 : bouton retour + nom du domaine + sous-titre
+function renderDomaineDetailHeader(domaineName, domaineWines) {
+  const totalBottles = domaineWines.reduce((s, w) => s + (w.stock || 0), 0);
+  const totalValue = domaineWines.reduce((s, w) => s + (w.stock || 0) * (w.prix || 0), 0);
+  const pays = domaineWines.find(w => w.pays)?.pays || '';
+  const regions = [...new Set(domaineWines.map(w => w.region).filter(Boolean))];
+
+  return `
+    <div class="domaine-detail-back" id="domaineBackBtn">← Tous les domaines</div>
+    <div class="domaine-detail-header">
+      <h2>${flagOf(pays)} ${domaineName}</h2>
+      <div class="ddh-meta">
+        ${regions.length > 0 ? regions.join(' · ') : ''}
+        ${pays ? ' · ' + pays : ''}
+        · ${totalBottles} bout. · ${fmtPrice(totalValue)}
       </div>
     </div>
   `;
