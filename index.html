@@ -2898,7 +2898,8 @@ footer em {
         </div>
         <div class="form-field">
           <label>Cuvée</label>
-          <input type="text" id="f_cuvee">
+          <select id="f_cuvee_select" class="combo-select"><option value="__other__">— Autre (saisir ci-dessous) —</option></select>
+          <input type="text" id="f_cuvee" placeholder="Nom de la cuvée" class="combo-input">
         </div>
       </div>
       <div class="form-row">
@@ -5044,14 +5045,37 @@ function setupAppellationCombo(currentPays, currentRegion, currentValue) {
   });
 })();
 
+// Listener du combo Cuvée : si on choisit une cuvée existante, on copie ses infos
+(function setupCuveeComboListener() {
+  const selectEl = document.getElementById('f_cuvee_select');
+  const inputEl = document.getElementById('f_cuvee');
+  selectEl.addEventListener('change', () => {
+    if (selectEl.value === '__other__') {
+      inputEl.classList.add('show');
+      inputEl.value = '';
+      inputEl.focus();
+    } else {
+      inputEl.classList.remove('show');
+      inputEl.value = selectEl.value;
+      // Pré-remplissage des champs (cépage, appellation, prix, etc.) sauf millésime
+      autofillFromCuvee(selectEl.value);
+    }
+  });
+})();
+
 // Quand un domaine existant est sélectionné, on retrouve son pays et sa région
 // les plus fréquents parmi les vins déjà saisis. On ne remplit que si les champs
 // sont vides (ou ont leur valeur par défaut "Autre") pour ne pas écraser la saisie.
+// On repeuple aussi le select des cuvées avec celles déjà saisies pour ce domaine.
 function autofillFromDomaine(domaineName) {
   if (!domaineName || domaineName === '__other__') return;
   // Tous les vins actifs (on peut inclure les bus, ils restent des références)
   const matches = wines.filter(w => (w.domaine || '').toLowerCase() === domaineName.toLowerCase());
-  if (matches.length === 0) return;
+  if (matches.length === 0) {
+    // Domaine nouveau : on repart d'un select cuvée vide
+    populateCuveeSelect([]);
+    return;
+  }
 
   // Compter les pays et régions rencontrés pour ce domaine
   const paysCount = {};
@@ -5108,6 +5132,158 @@ function autofillFromDomaine(domaineName) {
     // Repeupler les appellations de la nouvelle région
     setupAppellationCombo(paysInput.value.trim(), bestRegion, '');
   }
+
+  // Repeupler le select des cuvées avec celles déjà saisies pour ce domaine
+  // On dédoublonne (une cuvée peut avoir plusieurs millésimes)
+  const cuveesSet = new Set();
+  matches.forEach(w => {
+    if (w.cuvee && w.cuvee.trim()) cuveesSet.add(w.cuvee.trim());
+  });
+  const cuveesList = [...cuveesSet].sort((a, b) =>
+    a.localeCompare(b, 'fr', { sensitivity: 'base' })
+  );
+  populateCuveeSelect(cuveesList);
+
+  updateApogeeInfo();
+}
+
+// Peupler le select des cuvées avec une liste donnée
+function populateCuveeSelect(cuveesList) {
+  const select = document.getElementById('f_cuvee_select');
+  const input = document.getElementById('f_cuvee');
+  const currentValue = input.value.trim();
+
+  // Reconstruire les options
+  let html = '<option value="__other__">— Autre (saisir ci-dessous) —</option>';
+  cuveesList.forEach(c => {
+    html += `<option value="${c.replace(/"/g, '&quot;')}">${c}</option>`;
+  });
+  select.innerHTML = html;
+
+  // Si la valeur actuelle de l'input correspond à une cuvée listée, la sélectionner
+  if (currentValue && cuveesList.some(c => c.toLowerCase() === currentValue.toLowerCase())) {
+    const match = cuveesList.find(c => c.toLowerCase() === currentValue.toLowerCase());
+    select.value = match;
+    input.classList.remove('show');
+  } else {
+    // Sinon, mode saisie libre (mais on garde la valeur déjà tapée)
+    select.value = '__other__';
+    if (currentValue) input.classList.add('show');
+  }
+}
+
+// Quand une cuvée existante est sélectionnée, copier les infos d'un vin précédent
+// de la même cuvée (cépage, accords, prix, lieu, couleur, format, apogée…)
+// sauf le millésime qui doit rester vide ou inchangé.
+function autofillFromCuvee(cuveeName) {
+  if (!cuveeName || cuveeName === '__other__') return;
+
+  // Récupérer le domaine actuel pour cibler la bonne cuvée
+  const domaine = document.getElementById('f_domaine').value.trim();
+  if (!domaine) return;
+
+  // Trouver tous les vins avec ce domaine + cette cuvée
+  const matches = wines.filter(w =>
+    (w.domaine || '').toLowerCase() === domaine.toLowerCase() &&
+    (w.cuvee || '').toLowerCase() === cuveeName.toLowerCase()
+  );
+  if (matches.length === 0) return;
+
+  // Prendre le millésime le plus récent comme référence (informations probablement plus à jour)
+  const reference = [...matches].sort((a, b) => (b.millesime || 0) - (a.millesime || 0))[0];
+
+  // Helper pour remplir uniquement si vide
+  const fillIfEmpty = (id, value) => {
+    if (value == null || value === '') return;
+    const el = document.getElementById(id);
+    if (!el.value || el.value === '0' || el.value === 'Autre') {
+      el.value = value;
+    }
+  };
+
+  // Couleur (Rouge / Blanc / Rosé)
+  if (reference.couleur) {
+    const couleurEl = document.getElementById('f_couleur');
+    if (!couleurEl.value || couleurEl.value === 'Rouge') {
+      // Note : 'Rouge' est la valeur par défaut, on accepte de l'écraser car c'est presque toujours
+      // un défaut UI, pas une saisie consciente
+      couleurEl.value = reference.couleur;
+    }
+  }
+
+  // Format (Bouteille / Magnum / Jéroboam)
+  if (reference.format) {
+    const fmtEl = document.getElementById('f_format');
+    if (!fmtEl.value || fmtEl.value === 'Bouteille') {
+      fmtEl.value = reference.format;
+    }
+  }
+
+  // Cépage : on écrase si c'est une suggestion auto, sinon on respecte la saisie manuelle
+  if (reference.cepage) {
+    const cepageEl = document.getElementById('f_cepage');
+    if (!cepageEl.value.trim() || cepageEl.value.trim() === lastAutoCepage) {
+      cepageEl.value = reference.cepage;
+      lastAutoCepage = reference.cepage; // marquer pour pouvoir écraser plus tard si besoin
+    }
+  }
+
+  // Accords mets-vins
+  fillIfEmpty('f_accords', reference.accords);
+
+  // Prix (souvent identique d'un millésime à l'autre, sert de point de départ)
+  if (reference.prix && reference.prix > 0) {
+    const prixEl = document.getElementById('f_prix');
+    if (!prixEl.value || parseFloat(prixEl.value) === 0) {
+      prixEl.value = reference.prix;
+    }
+  }
+
+  // Lieu de stockage
+  if (reference.lieu) {
+    const lieuEl = document.getElementById('f_lieu');
+    if (!lieuEl.value || lieuEl.value === 'Maison') {
+      lieuEl.value = reference.lieu;
+    }
+    // Mettre à jour les sous-emplacements et présélectionner si applicable
+    updateSubLieuOptions(reference.subLieu || '');
+  }
+
+  // Appellation : doit aussi être pré-remplie pour cette cuvée
+  if (reference.appellation) {
+    const appellationInput = document.getElementById('f_appellation');
+    const appellationSelect = document.getElementById('f_appellation_select');
+    if (!appellationInput.value || appellationInput.value === '') {
+      // Vérifier que l'appellation est dans le select
+      const options = [...appellationSelect.options].map(o => o.value);
+      if (options.includes(reference.appellation)) {
+        appellationSelect.value = reference.appellation;
+        appellationInput.value = reference.appellation;
+        appellationInput.classList.remove('show');
+      } else {
+        appellationSelect.value = '__other__';
+        appellationInput.value = reference.appellation;
+        appellationInput.classList.add('show');
+      }
+    }
+  }
+
+  // Apogée custom (si l'utilisateur l'avait définie sur un autre millésime, peu probable mais possible)
+  // On ne reprend PAS l'apogée car elle dépend du millésime — laisser le calcul auto faire son travail
+
+  // Important : on NE remplit PAS le millésime (ni les notes, ni la photo, ni le stock)
+  // Ces champs doivent rester propres au nouveau vin que l'utilisateur ajoute.
+
+  // Notification visuelle discrète : surligner brièvement les champs remplis
+  const filledFields = ['f_couleur', 'f_format', 'f_cepage', 'f_accords', 'f_prix', 'f_lieu', 'f_appellation'];
+  filledFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value) {
+      el.style.transition = 'background 0.6s';
+      el.style.background = 'rgba(184, 149, 74, 0.15)';
+      setTimeout(() => { el.style.background = ''; }, 1500);
+    }
+  });
 
   updateApogeeInfo();
 }
@@ -5334,6 +5510,21 @@ function openModal(id) {
   setupAppellationCombo(paysVal, regionVal, w?.appellation || '');
 
   document.getElementById('f_cuvee').value = w?.cuvee || '';
+
+  // Peupler le select des cuvées en fonction du domaine actuel
+  const currentDomaineVal = document.getElementById('f_domaine').value.trim();
+  if (currentDomaineVal) {
+    const cuveesSet = new Set();
+    wines.forEach(ww => {
+      if ((ww.domaine || '').toLowerCase() === currentDomaineVal.toLowerCase() && ww.cuvee && ww.cuvee.trim()) {
+        cuveesSet.add(ww.cuvee.trim());
+      }
+    });
+    populateCuveeSelect([...cuveesSet].sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' })));
+  } else {
+    populateCuveeSelect([]);
+  }
+
   document.getElementById('f_millesime').value = w?.millesime || '';
   document.getElementById('f_couleur').value = w?.couleur || 'Rouge';
   document.getElementById('f_format').value = w?.format || 'Bouteille';
